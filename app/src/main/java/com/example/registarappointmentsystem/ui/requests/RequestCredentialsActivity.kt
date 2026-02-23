@@ -101,4 +101,3 @@ class RequestCredentialsActivity : AppCompatActivity() {
         }
     }
 }
-

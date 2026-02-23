@@ -1,3 +1,9 @@
-package com.example.registarappointmentsystem.data.remote
+package com.example.registarappointmentsystem.data.remote.response
 
-data class LoginResponse()
+import com.example.registarappointmentsystem.data.model.User
+
+data class LoginResponse(
+    val success: Boolean,
+    val message: String? = null,
+    val user: User? = null
+)

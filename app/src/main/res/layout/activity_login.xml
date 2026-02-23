@@ -4,44 +4,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary_green"
+    android:background="@color/background_cream"
+    android:fillViewport="true"
     tools:context=".ui.auth.LoginActivity">
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center"
         android:padding="24dp">
 
-        <!-- Top avatar circle (placeholder for icon) -->
-        <View
+        <!-- School Logo / Icon -->
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/viewAvatarCircle"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:background="@android:color/white"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:padding="4dp"
+            app:strokeWidth="3dp"
+            app:strokeColor="@color/secondary_dark_gold"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
+            android:src="@android:drawable/ic_menu_gallery"
+            android:background="@color/primary_dark_green"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="32dp" />
+            android:layout_marginTop="40dp" />
 
         <!-- App title -->
         <TextView
             android:id="@+id/textTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Registrar Appointment\nScheduling System"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="18sp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="Registrar Appointment\nScheduling System"
+            android:textColor="@color/primary_dark_green"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <!-- Gold accent line -->
+        <View
+            android:layout_width="60dp"
+            android:layout_height="3dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:background="@color/secondary_dark_gold" />
+
 
         <!-- Student / Guest segmented control -->
         <LinearLayout
             android:id="@+id/layoutSegment"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@color/segment_background"
-            android:padding="2dp"
+            android:layout_height="48dp"
+            android:background="@drawable/segment_background"
+            android:padding="4dp"
             android:orientation="horizontal"
             android:gravity="center"
             android:layout_marginTop="24dp"
@@ -49,33 +66,40 @@
 
             <Button
                 android:id="@+id/buttonStudent"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:backgroundTint="@color/primary_dark_green"
                 android:text="Student"
                 android:textAllCaps="false"
-                android:backgroundTint="@color/segment_selected"
                 android:textColor="@android:color/white" />
 
             <Button
                 android:id="@+id/buttonGuest"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:text="Guest"
                 android:textAllCaps="false"
-                android:backgroundTint="@color/segment_background"
-                android:textColor="@color/segment_unselected_text" />
+                android:textColor="@color/text_secondary" />
         </LinearLayout>
 
-        <!-- White card container for form -->
+
+        <!-- Card container for form with gold border -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardForm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="@color/surface_white"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/secondary_dark_gold"
             app:cardUseCompatPadding="true">
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -89,6 +113,7 @@
                     android:text="Email"
                     android:textStyle="bold"
                     android:textSize="14sp"
+                    android:textColor="@color/text_primary"
                     android:layout_marginBottom="4dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -96,14 +121,22 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Email">
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/primary_dark_green"
+                    app:hintTextColor="@color/primary_dark_green"
+                    android:hint="Enter your email">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editTextEmail"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:autofillHints="emailAddress"
                         android:inputType="textEmailAddress" />
                 </com.google.android.material.textfield.TextInputLayout>
+
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -111,6 +144,7 @@
                     android:text="Password"
                     android:textStyle="bold"
                     android:textSize="14sp"
+                    android:textColor="@color/text_primary"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="4dp" />
 
@@ -119,23 +153,35 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Password">
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/primary_dark_green"
+                    app:hintTextColor="@color/primary_dark_green"
+                    app:passwordToggleEnabled="true"
+                    android:hint="Enter your password">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editTextPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword" />
+                        android:inputType="textPassword"
+                        android:autofillHints="password" />
                 </com.google.android.material.textfield.TextInputLayout>
+
 
                 <TextView
                     android:id="@+id/textForgotPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Forgot Password?"
-                    android:textSize="12sp"
-                    android:layout_marginTop="8dp"
-                    android:layout_gravity="end" />
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    android:layout_gravity="end"
+                    android:textColor="@color/secondary_dark_gold" />
+
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -150,31 +196,37 @@
                     android:id="@+id/textError"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/holo_red_dark"
+                    android:textColor="@color/error_red"
                     android:visibility="gone"
                     android:layout_marginTop="8dp" />
 
                 <Button
                     android:id="@+id/buttonLogin"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="24dp"
+                    android:backgroundTint="@color/primary_dark_green"
                     android:text="Log In"
                     android:textAllCaps="false"
-                    android:backgroundTint="@color/primary_green"
                     android:textColor="@android:color/white"
-                    android:layout_marginTop="24dp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="12dp" />
+
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="24dp">
 
                     <TextView
                         android:id="@+id/textGuestQuestion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Are you a guest? " />
+                        android:text="Are you a guest? "
+                        android:textColor="@color/text_secondary" />
 
                     <TextView
                         android:id="@+id/textCreateAccount"
@@ -182,10 +234,10 @@
                         android:layout_height="wrap_content"
                         android:text="Sign Up Here!"
                         android:textStyle="bold"
-                        android:textColor="@color/primary_green" />
+                        android:textColor="@color/primary_dark_green" />
                 </LinearLayout>
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 </ScrollView>
-

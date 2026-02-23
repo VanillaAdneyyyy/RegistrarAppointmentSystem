@@ -6,8 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.registarappointmentsystem.core.UiResult
-import com.example.registarappointmentsystem.data.fake.FakeAppointmentRepository
+import com.example.registarappointmentsystem.data.remote.RetrofitClient
 import com.example.registarappointmentsystem.data.repository.AppointmentRepository
+import com.example.registarappointmentsystem.data.repository.AppointmentRepositoryImpl
 import kotlinx.coroutines.launch
 
 data class RequestCredentialsFormState(
@@ -61,10 +62,9 @@ class RequestCredentialsViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RequestCredentialsViewModel::class.java)) {
-            val repo = FakeAppointmentRepository()
+            val repo = AppointmentRepositoryImpl(RetrofitClient.apiService)
             return RequestCredentialsViewModel(repo) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
-

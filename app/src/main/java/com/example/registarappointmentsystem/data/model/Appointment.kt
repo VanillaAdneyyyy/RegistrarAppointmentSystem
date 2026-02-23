@@ -1,17 +1,44 @@
 package com.example.registarappointmentsystem.data.model
 
 enum class AppointmentStatus {
-    APPROVED,
     PENDING,
+    APPROVED,
+    READY,
     REJECTED,
     COMPLETED
 }
 
 data class Appointment(
-    val id: Int,
-    val referenceId: Int,
-    val registrarNote: String?,
-    val availableDate: String?,
-    val status: AppointmentStatus
-)
-
+    val id: Int? = null,
+    val username: String? = null,
+    val date: String? = null,
+    val time: String? = null,
+    val purpose: String? = null,
+    val contact_number: String? = null,
+    val status: String? = "pending",
+    val admin_comment: String? = null,
+    val ready_date: String? = null,
+    val created_at: String? = null,
+    val reason: String? = null,
+    val pickup_time: String? = null,
+    val student_pickup_date: String? = null,
+    val firebase_id: String? = null,
+    val updated_at: String? = null
+) {
+    // Helper to get status as enum
+    fun getStatusEnum(): AppointmentStatus {
+        return when (status?.lowercase()) {
+            "pending" -> AppointmentStatus.PENDING
+            "approved" -> AppointmentStatus.APPROVED
+            "ready" -> AppointmentStatus.READY
+            "rejected" -> AppointmentStatus.REJECTED
+            "completed" -> AppointmentStatus.COMPLETED
+            else -> AppointmentStatus.PENDING
+        }
+    }
+    
+    // Helper to check if cancellable
+    fun isCancellable(): Boolean {
+        return status == "pending" || status == "ready" || status.isNullOrEmpty()
+    }
+}

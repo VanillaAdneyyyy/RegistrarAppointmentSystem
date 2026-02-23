@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@android:color/white"
-    android:elevation="2dp"
-    android:layout_marginBottom="12dp">
+    android:padding="16dp"
+    android:background="@color/surface_white"
+    android:elevation="4dp"
+    android:layout_marginBottom="12dp"
+    android:layout_marginHorizontal="4dp">
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,12 +18,14 @@
         android:gravity="center_vertical">
 
         <TextView
-            android:id="@+id/textReferenceId"
+            android:id="@+id/textRefId"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Reference ID: 30"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/textStatus"
@@ -29,46 +34,76 @@
             android:text="APPROVED"
             android:textStyle="bold"
             android:textSize="12sp"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
-            android:background="@android:color/holo_green_light" />
+            android:textColor="@color/white"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:background="@color/status_approved" />
+
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textRegistrarNote"
+        android:id="@+id/textPurpose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Purpose: Certification"
+        android:textStyle="bold"
+        android:textColor="@color/primary_dark_green"
+        android:textSize="16sp"
+        android:layout_marginTop="12dp" />
+
+    <TextView
+        android:id="@+id/textNote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Registrar's note here..."
-        android:background="#FFE3E3"
-        android:padding="8dp"
-        android:layout_marginTop="8dp" />
+        android:background="@color/accent_gold_light"
+        android:textColor="@color/text_primary"
+        android:padding="12dp"
+        android:layout_marginTop="12dp" />
 
     <TextView
-        android:id="@+id/textAvailableDate"
+        android:id="@+id/textDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Available Date: January 30, 2026"
-        android:layout_marginTop="8dp" />
+        android:text="Date: January 30, 2026"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="12dp" />
+
+
+
+    <Button
+        android:id="@+id/buttonSelectDate"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Select Date and Time"
+        android:textAllCaps="false"
+        android:backgroundTint="@color/secondary_dark_gold"
+        android:textColor="@color/white"
+        app:cornerRadius="8dp"
+        android:layout_marginTop="12dp" />
 
     <Button
         android:id="@+id/buttonConfirm"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="CONFIRM"
         android:textAllCaps="true"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:textColor="@android:color/white"
+        android:backgroundTint="@color/primary_dark_green"
+        android:textColor="@color/white"
+        app:cornerRadius="8dp"
         android:layout_marginTop="8dp" />
 
     <Button
         android:id="@+id/buttonCancel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="CANCEL"
         android:textAllCaps="true"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:textColor="@android:color/white"
+        android:backgroundTint="@color/error_red"
+        android:textColor="@color/white"
+        app:cornerRadius="8dp"
         android:layout_marginTop="4dp" />
 
-</LinearLayout>
 
+
+</LinearLayout>

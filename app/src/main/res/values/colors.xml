@@ -3,10 +3,51 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Primary green inspired by Figma mockup -->
-    <color name="primary_green">#1B6F36</color>
-    <color name="primary_green_dark">#145229</color>
-    <color name="segment_background">#FFFFFF</color>
-    <color name="segment_selected">#0F8A3C</color>
-    <color name="segment_unselected_text">#444444</color>
+    <!-- School Palette: Dark Green & Dark Gold -->
+    
+    <!-- Primary Dark Green -->
+    <color name="primary_dark_green">#0F5132</color>
+    <color name="primary_dark_green_light">#1B6F4A</color>
+    <color name="primary_dark_green_dark">#0A3D26</color>
+    
+    <!-- Secondary Dark Gold -->
+    <color name="secondary_dark_gold">#B8860B</color>
+    <color name="secondary_dark_gold_light">#D4A84B</color>
+    <color name="secondary_dark_gold_dark">#8B6914</color>
+    
+    <!-- Background Colors -->
+    <color name="background_cream">#FDF8F0</color>
+    <color name="background_light">#F5F0E8</color>
+    <color name="surface_white">#FFFFFF</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#5C5C5C</color>
+    <color name="text_hint">#9E9E9E</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent_green_light">#E8F5E9</color>
+    <color name="accent_gold_light">#FFF8E1</color>
+    
+    <!-- Legacy compatibility -->
+    <color name="primary_green">#0F5132</color>
+    <color name="primary_green_dark">#0A3D26</color>
+    <color name="segment_background">#FDF8F0</color>
+    <color name="segment_selected">#0F5132</color>
+    <color name="segment_unselected_text">#5C5C5C</color>
+
+    <!-- Status colors -->
+    <color name="status_approved">#0F5132</color>
+    <color name="status_pending">#B8860B</color>
+    <color name="status_ready">#1B6F4A</color>
+    <color name="status_rejected">#C62828</color>
+    <color name="status_completed">#5C5C5C</color>
+
+    <!-- Error and Success -->
+    <color name="error_red">#C62828</color>
+    <color name="success_green">#2E7D32</color>
+    
+    <!-- Divider and borders -->
+    <color name="divider_light">#E0E0E0</color>
+    <color name="border_gold">#D4A84B</color>
 </resources>
