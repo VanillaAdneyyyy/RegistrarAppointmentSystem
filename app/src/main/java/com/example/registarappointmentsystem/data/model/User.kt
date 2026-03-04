@@ -16,7 +16,7 @@ data class User(
     val name: String? = null, // Computed from first_name + last_name for backward compatibility
     val email: String,
     val personal_email: String? = null,
-    val role: Role,
+    val role: String, // Backend returns role as string: "student", "guest", "admin", etc.
     val token: String? = null,
     val status: String? = null,
     val is_active: Boolean? = null,
@@ -37,6 +37,17 @@ data class User(
             "$first_name ${middle_name ?: ""} $last_name ${extension_name ?: ""}".trim()
         } else {
             name ?: email
+        }
+    }
+    
+    // Helper to get role as enum
+    fun getRoleEnum(): Role {
+        return when (role?.lowercase()) {
+            "student" -> Role.STUDENT
+            "admin" -> Role.ADMIN
+            "registrar" -> Role.REGISTRAR
+            "guest" -> Role.GUEST
+            else -> Role.GUEST
         }
     }
 }

@@ -29,14 +29,22 @@ class RequestCredentialsViewModel(
     private val _submitResult = MutableLiveData(UiResult<Unit>())
     val submitResult: LiveData<UiResult<Unit>> = _submitResult
 
-    fun onSubmitClicked(credentialType: String, reason: String) {
-        val typeError = if (credentialType.isBlank()) "Credential type is required" else null
-        val reasonError = if (reason.isBlank()) "Reason is required" else null
+    fun onSubmitClicked(
+        username: String,
+        purpose: String,
+        reason: String,
+        contactNumber: String,
+        userId: Int = -1,
+        documentTypeIds: List<Int> = emptyList(),
+        studentIdNumber: String? = null
+    ) {
+        val typeError = if (documentTypeIds.isEmpty() && purpose.isBlank()) "Please select at least one document" else null
+        val reasonError = if (reason.isBlank()) "Please explain the purpose of your request" else null
 
         val valid = typeError == null && reasonError == null
 
         _formState.value = RequestCredentialsFormState(
-            credentialType = credentialType,
+            credentialType = purpose,
             reason = reason,
             credentialTypeError = typeError,
             reasonError = reasonError,
@@ -48,7 +56,15 @@ class RequestCredentialsViewModel(
         _submitResult.value = UiResult(isLoading = true)
 
         viewModelScope.launch {
-            val result = appointmentRepository.requestCredentials(credentialType, reason)
+            val result = appointmentRepository.requestCredentials(
+                username = username,
+                credentialType = purpose,
+                reason = reason,
+                contactNumber = contactNumber,
+                userId = userId,
+                documentTypeIds = documentTypeIds,
+                studentIdNumber = studentIdNumber
+            )
             _submitResult.value = if (result.isSuccess) {
                 UiResult(data = Unit)
             } else {

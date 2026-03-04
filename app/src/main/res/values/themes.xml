@@ -1,12 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme with School Palette: Dark Green & Dark Gold -->
+    <!-- Base application theme with DigiReg Palette: Navy Blue & Amber -->
     <style name="Base.Theme.RegistarAppointmentSystem" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Primary: Dark Green -->
+        <!-- Primary: Dark Navy Blue (#1E3A8A) -->
         <item name="colorPrimary">@color/primary_dark_green</item>
         <item name="colorPrimaryVariant">@color/primary_dark_green_dark</item>
         <item name="colorOnPrimary">@color/white</item>
         
-        <!-- Secondary: Dark Gold -->
+        <!-- Secondary: Amber (#F59E0B) -->
         <item name="colorSecondary">@color/secondary_dark_gold</item>
         <item name="colorSecondaryVariant">@color/secondary_dark_gold_dark</item>
         <item name="colorOnSecondary">@color/white</item>

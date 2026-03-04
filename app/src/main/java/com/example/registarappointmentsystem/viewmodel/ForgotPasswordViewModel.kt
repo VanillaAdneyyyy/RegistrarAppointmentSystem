@@ -16,45 +16,104 @@ class ForgotPasswordViewModel(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
+    // Step 1 result: PIN sent, expose requestId
     private val _resetSent = MutableLiveData(false)
     val resetSent: LiveData<Boolean> = _resetSent
+
+    // Step 2 result: PIN verified
+    private val _pinVerified = MutableLiveData(false)
+    val pinVerified: LiveData<Boolean> = _pinVerified
+
+    // Step 3 result: password reset completed
+    private val _passwordReset = MutableLiveData(false)
+    val passwordReset: LiveData<Boolean> = _passwordReset
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    /**
-     * Request password reset by email only
-     * Simplified flow - just send email, backend handles the reset link
-     */
+    // Internal state
+    private var requestId: Int = -1
+
+    /** Step 1 — request PIN sent to email */
     fun requestPasswordReset(email: String) {
         _isLoading.value = true
         _errorMessage.value = null
-        
+
         viewModelScope.launch {
-            // Use the existing API but with email only
-            // The backend will send a reset link to the email
             val result = authRepository.requestPasswordResetPin(
                 identifier = email,
                 idNumber = null,
-                role = "guest", // Default role, backend will determine from email
+                role = "guest",
                 email = email
             )
-            
+
             _isLoading.value = false
-            
+
             result.onSuccess { response ->
-                if (response.success) {
+                if (response.success && response.requestId != null) {
+                    requestId = response.requestId
                     _resetSent.value = true
                 } else {
-                    _errorMessage.value = response.message ?: "Failed to send reset link"
+                    _errorMessage.value = response.message ?: "Failed to send PIN"
                 }
             }.onFailure { exception ->
-                _errorMessage.value = exception.message ?: "Failed to send reset link. Please try again."
+                _errorMessage.value = exception.message ?: "Failed to send PIN. Please try again."
+            }
+        }
+    }
+
+    /** Step 2 — verify the 6-digit PIN */
+    fun verifyPin(pin: String) {
+        if (requestId == -1) {
+            _errorMessage.value = "Session expired. Please start over."
+            return
+        }
+        _isLoading.value = true
+        _errorMessage.value = null
+
+        viewModelScope.launch {
+            val result = authRepository.verifyPin(requestId, pin)
+
+            _isLoading.value = false
+
+            result.onSuccess { response ->
+                if (response.success && response.verified == true) {
+                    _pinVerified.value = true
+                } else {
+                    _errorMessage.value = response.message ?: "Invalid PIN"
+                }
+            }.onFailure { exception ->
+                _errorMessage.value = exception.message ?: "Failed to verify PIN."
+            }
+        }
+    }
+
+    /** Step 3 — set new password */
+    fun resetPassword(newPassword: String) {
+        if (requestId == -1) {
+            _errorMessage.value = "Session expired. Please start over."
+            return
+        }
+        _isLoading.value = true
+        _errorMessage.value = null
+
+        viewModelScope.launch {
+            val result = authRepository.resetPassword(requestId, newPassword)
+
+            _isLoading.value = false
+
+            result.onSuccess { response ->
+                if (response.success) {
+                    _passwordReset.value = true
+                } else {
+                    _errorMessage.value = response.message ?: "Failed to reset password"
+                }
+            }.onFailure { exception ->
+                _errorMessage.value = exception.message ?: "Failed to reset password. Please try again."
             }
         }
     }
 }
-
 class ForgotPasswordViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

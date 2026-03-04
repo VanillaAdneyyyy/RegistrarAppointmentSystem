@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet_rounded"
+    android:paddingBottom="24dp">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="4dp"
+        android:background="#DDDDDD"
+        android:alpha="0.8"/>
+
+    <!-- Header row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:gravity="center_vertical">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvPickerTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Pickup Time"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:textColor="#0F172A"/>
+
+            <TextView
+                android:id="@+id/tvPickerDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="March 4, 2026"
+                android:textSize="13sp"
+                android:textColor="#64748B"
+                android:layout_marginTop="1dp"/>
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnPickerClose"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:contentDescription="Close"
+            android:tint="#94A3B8"/>
+    </LinearLayout>
+
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F1F5F9"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Scrollable slots -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <!-- Morning section -->
+            <TextView
+                android:id="@+id/tvMorningLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌅  Morning"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#64748B"
+                android:letterSpacing="0.08"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Rows injected programmatically -->
+            <LinearLayout
+                android:id="@+id/gridMorning"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Afternoon section -->
+            <TextView
+                android:id="@+id/tvAfternoonLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌇  Afternoon"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#64748B"
+                android:letterSpacing="0.08"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Rows injected programmatically -->
+            <LinearLayout
+                android:id="@+id/gridAfternoon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Legend -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="8dp"
+        android:layout_marginTop="4dp">
+
+        <View
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="#166534"
+            android:layout_marginEnd="5dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Available"
+            android:textSize="11sp"
+            android:textColor="#64748B"
+            android:layout_marginEnd="18dp"/>
+
+        <View
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="#FCA5A5"
+            android:layout_marginEnd="5dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fully Booked"
+            android:textSize="11sp"
+            android:textColor="#64748B"/>
+    </LinearLayout>
+
+</LinearLayout>

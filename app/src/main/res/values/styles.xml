@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="StatCardStyle">
+        <item name="android:background">@drawable/bg_stat_card</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+</resources>

@@ -5,11 +5,13 @@ enum class AppointmentStatus {
     APPROVED,
     READY,
     REJECTED,
-    COMPLETED
+    COMPLETED,
+    INCOMPLETE
 }
 
 data class Appointment(
     val id: Int? = null,
+    val user_id: Int? = null,
     val username: String? = null,
     val date: String? = null,
     val time: String? = null,
@@ -23,7 +25,19 @@ data class Appointment(
     val pickup_time: String? = null,
     val student_pickup_date: String? = null,
     val firebase_id: String? = null,
-    val updated_at: String? = null
+    val updated_at: String? = null,
+    @com.google.gson.annotations.SerializedName("payment_amount")
+    val paymentAmount: String? = null,
+    @com.google.gson.annotations.SerializedName("payment_reference")
+    val paymentReference: String? = null,
+    @com.google.gson.annotations.SerializedName("payment_status")
+    val paymentStatus: String? = null,
+    @com.google.gson.annotations.SerializedName("document_items")
+    val documentItems: List<DocumentItem>? = null,
+    @com.google.gson.annotations.SerializedName("document_type_ids")
+    val documentTypeIds: List<Int>? = null,
+    @com.google.gson.annotations.SerializedName("student_id_number")
+    val studentIdNumber: String? = null
 ) {
     // Helper to get status as enum
     fun getStatusEnum(): AppointmentStatus {
@@ -33,6 +47,7 @@ data class Appointment(
             "ready" -> AppointmentStatus.READY
             "rejected" -> AppointmentStatus.REJECTED
             "completed" -> AppointmentStatus.COMPLETED
+            "incomplete" -> AppointmentStatus.INCOMPLETE
             else -> AppointmentStatus.PENDING
         }
     }

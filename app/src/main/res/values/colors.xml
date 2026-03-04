@@ -3,51 +3,55 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- School Palette: Dark Green & Dark Gold -->
-    
-    <!-- Primary Dark Green -->
-    <color name="primary_dark_green">#0F5132</color>
-    <color name="primary_dark_green_light">#1B6F4A</color>
-    <color name="primary_dark_green_dark">#0A3D26</color>
-    
-    <!-- Secondary Dark Gold -->
-    <color name="secondary_dark_gold">#B8860B</color>
-    <color name="secondary_dark_gold_light">#D4A84B</color>
-    <color name="secondary_dark_gold_dark">#8B6914</color>
-    
-    <!-- Background Colors -->
-    <color name="background_cream">#FDF8F0</color>
-    <color name="background_light">#F5F0E8</color>
-    <color name="surface_white">#FFFFFF</color>
-    
-    <!-- Text Colors -->
-    <color name="text_primary">#1A1A1A</color>
-    <color name="text_secondary">#5C5C5C</color>
-    <color name="text_hint">#9E9E9E</color>
-    
-    <!-- Accent Colors -->
-    <color name="accent_green_light">#E8F5E9</color>
-    <color name="accent_gold_light">#FFF8E1</color>
-    
-    <!-- Legacy compatibility -->
-    <color name="primary_green">#0F5132</color>
-    <color name="primary_green_dark">#0A3D26</color>
-    <color name="segment_background">#FDF8F0</color>
-    <color name="segment_selected">#0F5132</color>
-    <color name="segment_unselected_text">#5C5C5C</color>
+    <!-- Primary: Dark Navy Blue (matches web #1e3a8a) -->
+    <color name="primary_dark_green">#1E3A8A</color>
+    <color name="primary_dark_green_light">#2563EB</color>
+    <color name="primary_dark_green_dark">#1E40AF</color>
 
-    <!-- Status colors -->
-    <color name="status_approved">#0F5132</color>
-    <color name="status_pending">#B8860B</color>
-    <color name="status_ready">#1B6F4A</color>
-    <color name="status_rejected">#C62828</color>
-    <color name="status_completed">#5C5C5C</color>
+    <!-- Secondary Accent: Amber (matches web pending #f59e0b) -->
+    <color name="secondary_dark_gold">#F59E0B</color>
+    <color name="secondary_dark_gold_light">#FCD34D</color>
+    <color name="secondary_dark_gold_dark">#D97706</color>
+
+    <!-- Background Colors -->
+    <color name="background_cream">#F1F5F9</color>
+    <color name="background_light">#E2E8F0</color>
+    <color name="surface_white">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_hint">#94A3B8</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_green_light">#EFF6FF</color>
+    <color name="accent_gold_light">#FEF3C7</color>
+
+    <!-- Legacy compatibility -->
+    <color name="primary_green">#1E3A8A</color>
+    <color name="primary_green_dark">#1E40AF</color>
+    <color name="segment_background">#F1F5F9</color>
+    <color name="segment_selected">#1E3A8A</color>
+    <color name="segment_unselected_text">#475569</color>
+
+    <!-- Status colors (matches web) -->
+    <color name="status_approved">#2563EB</color>
+    <color name="status_pending">#F59E0B</color>
+    <color name="status_ready">#10B981</color>
+    <color name="status_rejected">#EF4444</color>
+    <color name="status_completed">#8B5CF6</color>
 
     <!-- Error and Success -->
-    <color name="error_red">#C62828</color>
-    <color name="success_green">#2E7D32</color>
-    
+    <color name="error_red">#EF4444</color>
+    <color name="success_green">#10B981</color>
+
+    <!-- Stat card accent colors -->
+    <color name="stat_blue">#3B82F6</color>
+    <color name="stat_amber">#F59E0B</color>
+    <color name="stat_green">#10B981</color>
+    <color name="stat_purple">#8B5CF6</color>
+
     <!-- Divider and borders -->
-    <color name="divider_light">#E0E0E0</color>
-    <color name="border_gold">#D4A84B</color>
+    <color name="divider_light">#E2E8F0</color>
+    <color name="border_gold">#FCD34D</color>
 </resources>

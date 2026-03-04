@@ -1,109 +1,350 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/surface_white"
-    android:elevation="4dp"
     android:layout_marginBottom="12dp"
-    android:layout_marginHorizontal="4dp">
-
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/surface_white"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textRefId"
-            android:layout_width="0dp"
+        <!-- Colored status strip at very top of card -->
+        <View
+            android:id="@+id/viewStatusStrip"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="@color/status_pending" />
+
+        <!-- Ref ID + Status badge row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Reference ID: 30"
-            android:textStyle="bold"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/textRefId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Ref #-"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <!-- ● dot + status in one rounded pill -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@color/status_pending"
+                android:id="@+id/statusBadgeLayout">
+
+                <TextView
+                    android:id="@+id/textStatusDot"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/step_circle_done"
+                    android:backgroundTint="@color/white"
+                    android:layout_marginEnd="5dp" />
+
+                <TextView
+                    android:id="@+id/textStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PENDING"
+                    android:textStyle="bold"
+                    android:textSize="10sp"
+                    android:textColor="@color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_light" />
+
+        <!-- Document / Purpose title -->
+        <TextView
+            android:id="@+id/textPurpose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Purpose"
             android:textColor="@color/text_primary"
-            android:textSize="14sp" />
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="4dp" />
+
+        <!-- ===== STEP TRACKER ===== -->
+        <!--
+            Visual flow:  Submitted ——— Under Review ——— Ready ——— Completed
+            Circles are driven programmatically by AppointmentsAdapter.
+            IDs: stepCircle1-4, stepLine12, stepLine23, stepLine34,
+                 stepLabel1-4
+        -->
+
+        <!-- Admin note (hidden when empty) -->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/stepTrackerContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/stepLabel2"
+            app:layout_constraintTop_toTopOf="@+id/stepLabel2">
+
+            <!-- Connecting lines drawn BEFORE circles so circles appear on top -->
+            <!-- Line 1→2 -->
+            <View
+                android:id="@+id/stepLine12"
+                android:layout_width="0dp"
+                android:layout_height="3dp"
+                android:background="#BDBDBD"
+                app:layout_constraintBottom_toBottomOf="@id/stepCircle1"
+                app:layout_constraintEnd_toStartOf="@id/stepCircle2"
+                app:layout_constraintStart_toEndOf="@id/stepCircle1"
+                app:layout_constraintTop_toTopOf="@id/stepCircle1" />
+
+            <!-- Line 2→3 -->
+            <View
+                android:id="@+id/stepLine23"
+                android:layout_width="0dp"
+                android:layout_height="3dp"
+                android:background="#BDBDBD"
+                app:layout_constraintBottom_toBottomOf="@id/stepCircle2"
+                app:layout_constraintEnd_toStartOf="@id/stepCircle3"
+                app:layout_constraintStart_toEndOf="@id/stepCircle2"
+                app:layout_constraintTop_toTopOf="@id/stepCircle2" />
+
+            <!-- Line 3→4 -->
+            <View
+                android:id="@+id/stepLine34"
+                android:layout_width="0dp"
+                android:layout_height="3dp"
+                android:background="#BDBDBD"
+                app:layout_constraintBottom_toBottomOf="@id/stepCircle3"
+                app:layout_constraintEnd_toStartOf="@id/stepCircle4"
+                app:layout_constraintStart_toEndOf="@id/stepCircle3"
+                app:layout_constraintTop_toTopOf="@id/stepCircle3" />
+
+            <!-- Step 1 circle -->
+            <View
+                android:id="@+id/stepCircle1"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:background="@drawable/step_circle_inactive"
+                app:layout_constraintEnd_toStartOf="@id/stepCircle2"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Step 2 circle -->
+            <View
+                android:id="@+id/stepCircle2"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:background="@drawable/step_circle_inactive"
+                app:layout_constraintEnd_toStartOf="@id/stepCircle3"
+                app:layout_constraintStart_toEndOf="@id/stepCircle1"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Step 3 circle -->
+            <View
+                android:id="@+id/stepCircle3"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:background="@drawable/step_circle_inactive"
+                app:layout_constraintEnd_toStartOf="@id/stepCircle4"
+                app:layout_constraintStart_toEndOf="@id/stepCircle2"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Step 4 circle -->
+            <View
+                android:id="@+id/stepCircle4"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:background="@drawable/step_circle_inactive"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/stepCircle3"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Step labels (below circles) -->
+
+            <TextView
+                android:id="@+id/stepLabel1"
+                android:layout_width="59dp"
+                android:layout_height="15dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="Submitted"
+                android:textColor="@color/text_secondary"
+                android:textSize="9sp"
+                app:layout_constraintEnd_toEndOf="@id/stepCircle1"
+                app:layout_constraintHorizontal_bias="0.461"
+                app:layout_constraintStart_toStartOf="@id/stepCircle1"
+                app:layout_constraintTop_toBottomOf="@id/stepCircle1" />
+
+            <TextView
+                android:id="@+id/stepLabel2"
+                android:layout_width="61dp"
+                android:layout_height="15dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="Under Review"
+                android:textColor="@color/text_secondary"
+                android:textSize="9sp"
+                app:layout_constraintEnd_toEndOf="@id/stepCircle2"
+                app:layout_constraintHorizontal_bias="0.462"
+                app:layout_constraintStart_toStartOf="@id/stepCircle2"
+                app:layout_constraintTop_toBottomOf="@id/stepCircle2" />
+
+            <TextView
+                android:id="@+id/stepLabel3"
+                android:layout_width="42dp"
+                android:layout_height="15dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:text="Ready"
+                android:textColor="@color/text_secondary"
+                android:textSize="9sp"
+                app:layout_constraintEnd_toEndOf="@id/stepCircle3"
+                app:layout_constraintStart_toStartOf="@id/stepCircle3"
+                app:layout_constraintTop_toBottomOf="@id/stepCircle3" />
+
+            <TextView
+                android:id="@+id/stepLabel4"
+                android:layout_width="71dp"
+                android:layout_height="12dp"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:text="Completed"
+                android:textColor="@color/text_secondary"
+                android:textSize="9sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/stepCircle4"
+                app:layout_constraintStart_toStartOf="@id/stepCircle4"
+                app:layout_constraintTop_toBottomOf="@id/stepCircle4"
+                app:layout_constraintVertical_bias="0.0" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
-            android:id="@+id/textStatus"
-            android:layout_width="wrap_content"
+            android:id="@+id/textNote"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="APPROVED"
-            android:textStyle="bold"
+            android:text=""
+            android:background="@color/accent_gold_light"
+            android:textColor="@color/secondary_dark_gold_dark"
             android:textSize="12sp"
-            android:textColor="@color/white"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:background="@color/status_approved" />
+            android:padding="10dp"
+            android:drawablePadding="6dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
+        <!-- Scheduled date / status info line -->
+        <TextView
+            android:id="@+id/textDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Waiting for Registrar's Approval"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="12dp" />
+
+        <!-- Action buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="14dp">
+
+            <Button
+                android:id="@+id/buttonSelectDate"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="📅 Select Pickup Date and Time"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:backgroundTint="@color/primary_dark_green"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                android:visibility="gone"
+                android:layout_marginBottom="6dp" />
+
+            <Button
+                android:id="@+id/buttonConfirm"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Confirm Pickup"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:backgroundTint="@color/primary_dark_green"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                android:visibility="gone"
+                android:layout_marginBottom="6dp" />
+
+            <Button
+                android:id="@+id/buttonPrintStub"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="🖨️ Print Claim Stub"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:backgroundTint="@color/primary_dark_green_dark"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                android:visibility="gone"
+                android:layout_marginBottom="6dp" />
+
+            <Button
+                android:id="@+id/buttonCancel"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Cancel Request"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:backgroundTint="@color/error_red"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textPurpose"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Purpose: Certification"
-        android:textStyle="bold"
-        android:textColor="@color/primary_dark_green"
-        android:textSize="16sp"
-        android:layout_marginTop="12dp" />
-
-    <TextView
-        android:id="@+id/textNote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Registrar's note here..."
-        android:background="@color/accent_gold_light"
-        android:textColor="@color/text_primary"
-        android:padding="12dp"
-        android:layout_marginTop="12dp" />
-
-    <TextView
-        android:id="@+id/textDate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Date: January 30, 2026"
-        android:textColor="@color/text_secondary"
-        android:layout_marginTop="12dp" />
-
-
-
-    <Button
-        android:id="@+id/buttonSelectDate"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="Select Date and Time"
-        android:textAllCaps="false"
-        android:backgroundTint="@color/secondary_dark_gold"
-        android:textColor="@color/white"
-        app:cornerRadius="8dp"
-        android:layout_marginTop="12dp" />
-
-    <Button
-        android:id="@+id/buttonConfirm"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="CONFIRM"
-        android:textAllCaps="true"
-        android:backgroundTint="@color/primary_dark_green"
-        android:textColor="@color/white"
-        app:cornerRadius="8dp"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/buttonCancel"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="CANCEL"
-        android:textAllCaps="true"
-        android:backgroundTint="@color/error_red"
-        android:textColor="@color/white"
-        app:cornerRadius="8dp"
-        android:layout_marginTop="4dp" />
-
-
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

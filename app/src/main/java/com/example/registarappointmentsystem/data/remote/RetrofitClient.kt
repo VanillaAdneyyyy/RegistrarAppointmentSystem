@@ -35,7 +35,6 @@ object RetrofitClient {
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
-
     
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

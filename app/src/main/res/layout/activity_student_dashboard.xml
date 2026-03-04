@@ -5,44 +5,273 @@
     android:id="@+id/contentLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background_cream"
     tools:context=".ui.dashboard.StudentDashboardActivity">
 
-    <!-- Top app bar -->
+    <!-- ===== GRADIENT HEADER ===== -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
-        android:layout_height="90dp"
-        android:background="@color/primary_dark_green"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_header_gradient"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:paddingTop="36dp"
+        android:paddingBottom="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textToolbarTitle"
-            android:layout_width="wrap_content"
+        <!-- Text column: greeting + title -->
+        <LinearLayout
+            android:id="@+id/topBarTextCol"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="My Dashboard"
-            android:textColor="@color/white"
-            android:textSize="25sp"
-            android:textStyle="bold"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/buttonNotification"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/textWelcomeUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome back,"
+                android:textColor="#BFDBFE"
+                android:textSize="12sp"
+                android:letterSpacing="0.03" />
+
+            <TextView
+                android:id="@+id/textToolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Dashboard"
+                android:textColor="@color/white"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="36dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="4dp"
+                android:background="#F59E0B"
+                android:alpha="0.8" />
+        </LinearLayout>
+
+        <!-- Notification bell -->
+        <ImageButton
+            android:id="@+id/buttonNotification"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_close_btn"
+            android:src="@drawable/ic_notification"
+            android:tint="@color/white"
+            android:contentDescription="@null"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/imageProfile"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <!-- Profile avatar -->
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageProfile"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginEnd="16dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:contentDescription="Profile"
             android:src="@android:drawable/ic_menu_myplaces"
-            app:tint="@color/secondary_dark_gold"
+            android:background="@drawable/bg_close_btn"
+            android:padding="8dp"
+            app:tint="#BFDBFE"
+            app:strokeWidth="2dp"
+            app:strokeColor="#BFDBFE"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ===== STATS ROW ===== -->
+    <HorizontalScrollView
+        android:id="@+id/statsRow"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:background="@color/surface_white"
+        android:elevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
+
+            <!-- Stat: Total -->
+            <LinearLayout
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:background="@color/surface_white"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginEnd="8dp"
+                style="@style/StatCardStyle">
+
+                <TextView
+                    android:id="@+id/tvStatTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/stat_blue"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
+                    android:gravity="center"
+                    android:layout_marginTop="2dp" />
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@color/stat_blue" />
+
+            </LinearLayout>
+
+            <!-- Stat: Processing -->
+            <LinearLayout
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginEnd="8dp"
+                style="@style/StatCardStyle">
+
+                <TextView
+                    android:id="@+id/tvStatProcessing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/stat_amber"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Processing"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
+                    android:gravity="center"
+                    android:layout_marginTop="2dp" />
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@color/stat_amber" />
+
+            </LinearLayout>
+
+            <!-- Stat: Ready -->
+            <LinearLayout
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginEnd="8dp"
+                style="@style/StatCardStyle">
+
+                <TextView
+                    android:id="@+id/tvStatReady"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/stat_green"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ready"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
+                    android:gravity="center"
+                    android:layout_marginTop="2dp" />
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@color/stat_green" />
+
+            </LinearLayout>
+
+            <!-- Stat: Completed -->
+            <LinearLayout
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                style="@style/StatCardStyle">
+
+                <TextView
+                    android:id="@+id/tvStatCompleted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/stat_purple"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Completed"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
+                    android:gravity="center"
+                    android:layout_marginTop="2dp" />
+
+                <View
+                    android:layout_width="24dp"
+                    android:layout_height="3dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@color/stat_purple" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <!-- Progress Bar -->
     <ProgressBar
@@ -50,7 +279,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintTop_toBottomOf="@id/statsRow"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -64,41 +293,172 @@
         android:gravity="center"
         android:visibility="gone"
         android:padding="32dp"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
+        android:background="@color/background_cream"
+        app:layout_constraintTop_toBottomOf="@id/statsRow"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@android:drawable/ic_menu_agenda"
-            android:tint="#CCCCCC" />
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:text="📋"
+            android:textSize="48sp"
+            android:gravity="center" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="No Appointments Yet"
-            android:textSize="18sp"
+            android:text="No Requests Yet"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#666666" />
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Request credentials to get started"
-            android:textSize="14sp"
-            android:textColor="#999999" />
+            android:text="Start your first document request"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center" />
 
-        <Button
+        <!-- How-to steps (matching web empty state) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_instructions_box"
+                android:padding="14dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1️⃣"
+                    android:textSize="18sp"
+                    android:layout_marginEnd="12dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Choose Document Type"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select the document you need"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_amount_pill"
+                android:padding="14dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2️⃣"
+                    android:textSize="18sp"
+                    android:layout_marginEnd="12dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Submit Request"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Our office will process it quickly"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_instructions_box"
+                android:padding="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3️⃣"
+                    android:textSize="18sp"
+                    android:layout_marginEnd="12dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Schedule Pickup"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pick up your document at a convenient time"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonRequestCredentials"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Request Credentials"
-            android:backgroundTint="@color/primary_dark_green" />
+            android:layout_height="48dp"
+            android:text="Create Your First Request"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            app:backgroundTint="@color/primary_dark_green"
+            app:cornerRadius="10dp" />
 
     </LinearLayout>
 
@@ -107,9 +467,10 @@
         android:id="@+id/recyclerAppointments"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="16dp"
+        android:padding="14dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
+        android:background="@color/background_cream"
+        app:layout_constraintTop_toBottomOf="@id/statsRow"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

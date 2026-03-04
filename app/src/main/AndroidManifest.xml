@@ -20,27 +20,39 @@
 
         <activity
             android:name=".ui.requests.RequestCredentialsActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan"
+            android:parentActivityName=".ui.dashboard.StudentDashboardActivity" />
 
         <activity
             android:name=".ui.auth.LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ui.dashboard.StudentDashboardActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop" />
 
         <activity
             android:name=".ui.profile.ProfileActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.dashboard.StudentDashboardActivity" />
 
         <activity
             android:name=".ui.auth.RegisterActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.auth.LoginActivity" />
 
         <activity
             android:name=".ui.auth.ForgotPasswordActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".ui.auth.LoginActivity" />
 
         <activity
             android:name=".MainActivity"

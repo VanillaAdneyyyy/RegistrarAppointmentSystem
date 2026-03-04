@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.registarappointmentsystem.R
 import com.example.registarappointmentsystem.data.model.Role
@@ -16,123 +18,132 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 /**
- * Enhanced Registration screen with:
- * - Name validation (letters, spaces, periods, hyphens only)
- * - Email PIN verification for guest registration
- * - Form validation with toast notifications
- * - Animated transitions
- * - Real API integration
- * - Loading states
- * - Error handling with Snackbar
+ * Registration screen — Guest only.
+ * Flow:
+ *  1. User fills in all details and clicks "Create Account"
+ *  2. System validates fields and sends a 6-digit PIN to the entered email
+ *  3. PIN section appears; user enters PIN and clicks "Verify & Register"
+ *  4. PIN verified → account created → navigate to Login
  */
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
-    private var selectedRole: Role = Role.GUEST
+    private val selectedRole: Role = Role.GUEST
     private lateinit var authRepository: AuthRepositoryImpl
-    
-    // Email verification state
-    private var isEmailVerified = false
-    private var verificationEmail = ""
+
+    /** True once the PIN has been sent to the user's email */
+    private var isPinSent = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Initialize repository
         authRepository = AuthRepositoryImpl(RetrofitClient.apiService)
-
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val sysBarBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            v.setPadding(0, 0, 0, maxOf(imeBottom, sysBarBottom))
+            insets
+        }
         setupUi()
         animateEntry()
     }
 
     private fun setupUi() {
-        // Hide role selection - only GUEST can register
-        binding.layoutSegment.visibility = android.view.View.GONE
-        
-        // Force GUEST role
-        selectedRole = Role.GUEST
+        // Role segment always hidden — only GUEST registration
+        binding.layoutSegment.visibility = View.GONE
 
-        // Sign up button
+        // "Create Account" button — Step 1: validate form and send PIN
         binding.buttonSignUp.setOnClickListener {
             animateButtonPress(it)
-            attemptRegistration()
+            if (!isPinSent) {
+                attemptSendPin()
+            } else {
+                // Already in PIN step, scroll to PIN section to remind user
+                binding.layoutPinSection.visibility = View.VISIBLE
+                showToast("Enter the PIN sent to your email")
+            }
         }
 
-        // Go to login
+        // "Verify & Register" button — Step 2: verify PIN then register
+        binding.buttonConfirmPin.setOnClickListener {
+            verifyPinAndRegister()
+        }
+
         binding.textGoToLogin.setOnClickListener {
             animateTextClick(it)
             finish()
         }
-        
-        // Email verification button
-        binding.buttonVerifyEmail.setOnClickListener {
-            requestEmailVerificationPin()
-        }
-        
-        // PIN confirmation button
-        binding.buttonConfirmPin.setOnClickListener {
-            verifyEmailPin()
-        }
     }
-    
-    // Name validation function
+
+    // ===== Name validation =====
     private fun validateName(name: String, fieldName: String): Pair<Boolean, String> {
         if (name.isEmpty()) {
-            return if (fieldName == "First name" || fieldName == "Last name") {
+            return if (fieldName == "First name" || fieldName == "Last name")
                 Pair(false, "$fieldName is required")
-            } else {
-                Pair(true, "") // Optional fields can be empty
-            }
+            else
+                Pair(true, "")
         }
-        
         val validNameRegex = Regex("^[a-zA-Z\\s\\.\\-]+$")
-        if (!validNameRegex.matches(name)) {
+        if (!validNameRegex.matches(name))
             return Pair(false, "$fieldName can only contain letters, spaces, periods (.), and hyphens (-)")
-        }
-        
         return Pair(true, "")
     }
-    
-    private fun requestEmailVerificationPin() {
-        val email = binding.editTextEmail.text.toString().trim()
-        val firstName = binding.editTextFirstName.text.toString().trim()
-        
-        if (email.isEmpty()) {
-            showError("Please enter your email first")
-            return
+
+    // ===== Step 1: validate → send PIN =====
+    private fun attemptSendPin() {
+        val firstName    = binding.editTextFirstName.text.toString().trim()
+        val middleName   = binding.editTextMiddleName.text.toString().trim()
+        val lastName     = binding.editTextLastName.text.toString().trim()
+        val extensionN   = binding.editTextExtensionName.text.toString().trim()
+        val email        = binding.editTextEmail.text.toString().trim()
+        val password     = binding.editTextPassword.text.toString().trim()
+        val confirmPw    = binding.editTextConfirmPassword.text.toString().trim()
+
+        // Name validation
+        for ((value, label) in listOf(
+            firstName to "First name",
+            middleName to "Middle name",
+            lastName to "Last name",
+            extensionN to "Extension name"
+        )) {
+            val (ok, msg) = validateName(value, label)
+            if (!ok) { showError(msg); return }
         }
-        
-        if (firstName.isEmpty()) {
-            showError("Please enter your first name")
-            return
+
+        // Field validation
+        when {
+            firstName.isEmpty()  -> { showError("First name is required"); return }
+            lastName.isEmpty()   -> { showError("Last name is required"); return }
+            email.isEmpty()      -> { showError("Email is required"); return }
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                showError("Invalid email format"); return }
+            password.isEmpty()   -> { showError("Password is required"); return }
+            password.length < 6  -> { showError("Password must be at least 6 characters"); return }
+            password != confirmPw -> { showError("Passwords do not match"); return }
         }
-        
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showError("Please enter a valid email address")
-            return
-        }
-        
+
+        binding.textError.visibility = View.GONE
+        sendRegistrationPin(email, firstName)
+    }
+
+    private fun sendRegistrationPin(email: String, firstName: String) {
         showLoading(true)
-        
         lifecycleScope.launch {
             try {
                 val request = mapOf("email" to email, "first_name" to firstName)
                 val response = authRepository.requestEmailVerificationPin(request)
-                
                 showLoading(false)
-                
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.get("success") == true) {
-                        verificationEmail = email
-                        binding.layoutPinSection.visibility = android.view.View.VISIBLE
-                        binding.textEmailStatus.visibility = android.view.View.VISIBLE
-                        binding.textEmailStatus.text = "PIN sent! Check your email."
-                        binding.textEmailStatus.setTextColor(getColor(android.R.color.holo_green_dark))
-                        binding.buttonVerifyEmail.text = "Resend"
+                        isPinSent = true
+                        // Show PIN section, lock form fields
+                        binding.layoutPinSection.visibility = View.VISIBLE
+                        binding.textEmailStatus.text = "✉ PIN sent to $email — check your inbox!"
+                        binding.textEmailStatus.visibility = View.VISIBLE
+                        binding.buttonSignUp.text = "Resend PIN"
+                        lockFormFields(true)
                         showToast("PIN sent to your email!")
                     } else {
                         showError(body?.get("message") as? String ?: "Failed to send PIN")
@@ -146,119 +157,54 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
     }
-    
-    private fun verifyEmailPin() {
-        val pin = binding.editTextPin.text.toString().trim()
+
+    // ===== Step 2: verify PIN → register =====
+    private fun verifyPinAndRegister() {
+        val pin   = binding.editTextPin.text.toString().trim()
         val email = binding.editTextEmail.text.toString().trim()
-        
         if (pin.length != 6) {
-            binding.textPinError.visibility = android.view.View.VISIBLE
-            binding.textPinError.text = "Please enter 6-digit PIN"
+            binding.textPinError.visibility = View.VISIBLE
+            binding.textPinError.text = "Please enter the 6-digit PIN"
             return
         }
-        
+        binding.textPinError.visibility = View.GONE
         showLoading(true)
-        
         lifecycleScope.launch {
             try {
-                val request = mapOf("email" to email, "pin" to pin)
-                val response = authRepository.verifyEmailPin(request)
-                
+                val response = authRepository.verifyEmailPin(mapOf("email" to email, "pin" to pin))
                 showLoading(false)
-                
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.get("success") == true && body["verified"] == true) {
-                        isEmailVerified = true
-                        binding.layoutPinSection.visibility = android.view.View.GONE
-                        binding.textEmailStatus.text = "✓ Email verified"
-                        binding.textEmailStatus.setTextColor(getColor(android.R.color.holo_green_dark))
-                        binding.editTextEmail.isEnabled = false
-                        binding.buttonVerifyEmail.isEnabled = false
-                        binding.buttonVerifyEmail.text = "Verified"
-                        showToast("Email verified successfully!")
+                        // PIN verified — now register
+                        val firstName   = binding.editTextFirstName.text.toString().trim()
+                        val middleName  = binding.editTextMiddleName.text.toString().trim()
+                        val lastName    = binding.editTextLastName.text.toString().trim()
+                        val extensionN  = binding.editTextExtensionName.text.toString().trim()
+                        val password    = binding.editTextPassword.text.toString().trim()
+                        performRegistration(firstName, middleName, lastName, extensionN, email, password)
                     } else {
-                        binding.textPinError.visibility = android.view.View.VISIBLE
+                        binding.textPinError.visibility = View.VISIBLE
                         binding.textPinError.text = body?.get("message") as? String ?: "Invalid PIN"
                     }
                 } else {
-                    binding.textPinError.visibility = android.view.View.VISIBLE
-                    binding.textPinError.text = "Failed to verify PIN"
+                    binding.textPinError.visibility = View.VISIBLE
+                    binding.textPinError.text = "Failed to verify PIN. Please try again."
                 }
             } catch (e: Exception) {
                 showLoading(false)
-                binding.textPinError.visibility = android.view.View.VISIBLE
+                binding.textPinError.visibility = View.VISIBLE
                 binding.textPinError.text = "Error: ${e.message}"
             }
         }
     }
-    
-    private fun showToast(message: String) {
-        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
-    }
 
-    private fun attemptRegistration() {
-        val firstName = binding.editTextFirstName.text.toString().trim()
-        val middleName = binding.editTextMiddleName.text.toString().trim()
-        val lastName = binding.editTextLastName.text.toString().trim()
-        val extensionName = binding.editTextExtensionName.text.toString().trim()
-        val email = binding.editTextEmail.text.toString().trim()
-        val password = binding.editTextPassword.text.toString().trim()
-        val confirmPassword = binding.editTextConfirmPassword.text.toString().trim()
-        val idNumber = if (selectedRole == Role.STUDENT) {
-            binding.editTextIdNumber.text.toString().trim()
-        } else null
-
-        // Name validation
-        val firstNameValidation = validateName(firstName, "First name")
-        if (!firstNameValidation.first) {
-            showError(firstNameValidation.second)
-            return
-        }
-        
-        val middleNameValidation = validateName(middleName, "Middle name")
-        if (!middleNameValidation.first) {
-            showError(middleNameValidation.second)
-            return
-        }
-        
-        val lastNameValidation = validateName(lastName, "Last name")
-        if (!lastNameValidation.first) {
-            showError(lastNameValidation.second)
-            return
-        }
-        
-        val extensionNameValidation = validateName(extensionName, "Extension name")
-        if (!extensionNameValidation.first) {
-            showError(extensionNameValidation.second)
-            return
-        }
-
-        // Validation
-        when {
-            firstName.isEmpty() -> showError("First name is required")
-            lastName.isEmpty() -> showError("Last name is required")
-            email.isEmpty() -> showError("Email is required")
-            !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> showError("Invalid email format")
-            !isEmailVerified -> showError("Please verify your email before registering")
-            password.isEmpty() -> showError("Password is required")
-            password.length < 6 -> showError("Password must be at least 6 characters")
-            password != confirmPassword -> showError("Passwords do not match")
-            else -> performRegistration(firstName, middleName, lastName, extensionName, email, password, idNumber)
-        }
-    }
-
+    // ===== Perform actual registration =====
     private fun performRegistration(
-        firstName: String,
-        middleName: String,
-        lastName: String,
-        extensionName: String,
-        email: String,
-        password: String,
-        idNumber: String?
+        firstName: String, middleName: String, lastName: String,
+        extensionName: String, email: String, password: String
     ) {
         showLoading(true)
-
         lifecycleScope.launch {
             try {
                 val result = authRepository.register(
@@ -269,19 +215,19 @@ class RegisterActivity : AppCompatActivity() {
                     email = email,
                     password = password,
                     role = selectedRole,
-                    idNumber = idNumber,
+                    idNumber = null,
                     employeeNumber = null
                 )
-
                 result.fold(
                     onSuccess = { (success, message) ->
                         showLoading(false)
                         if (success) {
-                            Snackbar.make(binding.root, "Registration successful! Please login.", Snackbar.LENGTH_LONG)
-                                .setAction("LOGIN") {
-                                    finish()
-                                }
-                                .show()
+                            Snackbar.make(
+                                binding.root,
+                                "Account created! Your request is pending admin approval.",
+                                Snackbar.LENGTH_LONG
+                            ).setAction("LOGIN") { finish() }.show()
+                            binding.root.postDelayed({ finish() }, 3000)
                         } else {
                             showError(message)
                         }
@@ -298,10 +244,26 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    // ===== Helpers =====
+    private fun lockFormFields(locked: Boolean) {
+        binding.editTextFirstName.isEnabled = !locked
+        binding.editTextMiddleName.isEnabled = !locked
+        binding.editTextLastName.isEnabled = !locked
+        binding.editTextExtensionName.isEnabled = !locked
+        binding.editTextEmail.isEnabled = !locked
+        binding.editTextPassword.isEnabled = !locked
+        binding.editTextConfirmPassword.isEnabled = !locked
+    }
+
+    private fun showToast(message: String) {
+        android.widget.Toast.makeText(this, message, android.widget.Toast.LENGTH_SHORT).show()
+    }
+
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.buttonSignUp.isEnabled = !isLoading
-        binding.buttonSignUp.text = if (isLoading) "" else "Sign Up"
+        binding.buttonConfirmPin.isEnabled = !isLoading
+        binding.buttonSignUp.text = if (isLoading) "" else if (isPinSent) "Resend PIN" else "Create Account"
     }
 
     private fun showError(message: String) {
@@ -311,65 +273,34 @@ class RegisterActivity : AppCompatActivity() {
             alpha = 0f
             animate().alpha(1f).setDuration(300).start()
         }
-
-        // Shake animation
         ObjectAnimator.ofFloat(binding.cardForm, "translationX", 0f, 20f, -20f, 20f, -20f, 0f).apply {
             duration = 400
             start()
         }
-
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun animateEntry() {
-        val views = listOf(
-            binding.viewAvatarCircle,
-            binding.textTitle,
-            binding.layoutSegment,
-            binding.cardForm
-        )
-
+        val views = listOf(binding.viewAvatarCircle, binding.textTitle, binding.cardForm)
         views.forEachIndexed { index, view ->
             view.alpha = 0f
             view.translationY = 50f
-
             view.animate()
-                .alpha(1f)
-                .translationY(0f)
-                .setDuration(500)
-                .setStartDelay(index * 100L)
-                .setInterpolator(OvershootInterpolator())
-                .start()
+                .alpha(1f).translationY(0f)
+                .setDuration(500).setStartDelay(index * 100L)
+                .setInterpolator(OvershootInterpolator()).start()
         }
     }
 
     private fun animateButtonPress(view: View) {
-        view.animate()
-            .scaleX(0.95f)
-            .scaleY(0.95f)
-            .setDuration(100)
-            .withEndAction {
-                view.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(100)
-                    .start()
-            }
-            .start()
+        view.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).withEndAction {
+            view.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+        }.start()
     }
 
     private fun animateTextClick(view: View) {
-        view.animate()
-            .scaleX(0.9f)
-            .scaleY(0.9f)
-            .setDuration(100)
-            .withEndAction {
-                view.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(100)
-                    .start()
-            }
-            .start()
+        view.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100).withEndAction {
+            view.animate().scaleX(1f).scaleY(1f).setDuration(100).start()
+        }.start()
     }
 }
