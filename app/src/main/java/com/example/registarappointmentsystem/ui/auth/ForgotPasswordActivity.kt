@@ -72,8 +72,12 @@ class ForgotPasswordActivity : AppCompatActivity() {
                     binding.textInputNewPassword.error = "Password is required"
                     return@setOnClickListener
                 }
-                newPassword.length < 6 -> {
-                    binding.textInputNewPassword.error = "At least 6 characters"
+                newPassword.length < 8 -> {
+                    binding.textInputNewPassword.error = "At least 8 characters"
+                    return@setOnClickListener
+                }
+                !Regex("^(?=.*[A-Za-z])(?=.*\\d)\\S{8,}$").matches(newPassword) -> {
+                    binding.textInputNewPassword.error = "Must include letters and numbers; special characters allowed"
                     return@setOnClickListener
                 }
                 newPassword != confirmPassword -> {

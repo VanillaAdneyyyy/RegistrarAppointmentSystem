@@ -21,7 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Notification bell — top-right of header -->
+        <!-- Notification bell and help — top-right of header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -30,12 +30,43 @@
             android:layout_marginBottom="8dp">
 
             <ImageButton
-                android:id="@+id/buttonNotification"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/actionBarItemBackground"
-                android:src="@drawable/ic_notification"
+                android:id="@+id/buttonHelp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_close_btn"
+                android:src="@android:drawable/ic_menu_help"
+                android:tint="@color/white"
                 android:contentDescription="@null" />
+
+            <FrameLayout
+                android:layout_width="38dp"
+                android:layout_height="38dp">
+
+                <ImageButton
+                    android:id="@+id/buttonNotification"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_close_btn"
+                    android:src="@drawable/ic_notification"
+                    android:tint="@color/white"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/textNotifBadge"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="1dp"
+                    android:layout_marginEnd="1dp"
+                    android:gravity="center"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
         </LinearLayout>
 
@@ -75,14 +106,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:background="@color/secondary_dark_gold"
+            android:background="@color/success_green"
+            android:letterSpacing="0.08"
             android:paddingHorizontal="14dp"
             android:paddingVertical="4dp"
             android:text="Student"
-            android:textColor="@color/white"
-            android:textSize="12sp"
             android:textAllCaps="true"
-            android:letterSpacing="0.08" />
+            android:textColor="@color/white"
+            android:textSize="12sp" />
 
         <!-- Status chip -->
         <TextView
@@ -94,6 +125,118 @@
             android:textColor="#BFDBFE"
             android:textSize="12sp" />
 
+        <!-- Profile actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"
+            android:paddingStart="22dp"
+            android:paddingEnd="22dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:id="@+id/btnEditProfile"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_edit_profile_btn"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp"
+                    android:text="Edit Profile"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnChangePassword"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_edit_profile_btn"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="10dp"
+                    android:text="Change Password"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/btnDeleteAccount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_delete_profile_btn"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="10dp"
+                android:text="Delete Account"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Incomplete profile banner (shown when profile fields are missing) -->
+    <LinearLayout
+        android:id="@+id/bannerProfileIncomplete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#FFF3CD"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/profileHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Please complete your profile before making document requests."
+            android:textColor="#92400E"
+            android:textSize="12.5sp"
+            android:lineSpacingExtra="2dp" />
+
+        <TextView
+            android:id="@+id/bannerEditBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Complete →"
+            android:textColor="#B45309"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@null"
+            android:padding="4dp"
+            android:clickable="true"
+            android:focusable="true" />
+
     </LinearLayout>
 
     <!-- ===== SCROLLABLE CONTENT ===== -->
@@ -102,7 +245,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/profileHeader"
+        app:layout_constraintTop_toBottomOf="@id/bannerProfileIncomplete"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigationProfile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -144,10 +287,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="First Name"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textFirstName"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="â€”" android:textColor="@color/text_primary"
-                            android:textSize="13sp" android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textFirstName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -160,10 +308,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Middle Name"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textMiddleName"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="â€”" android:textColor="@color/text_primary"
-                            android:textSize="13sp" android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textMiddleName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -176,10 +329,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Last Name"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textLastName"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="â€”" android:textColor="@color/text_primary"
-                            android:textSize="13sp" android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textLastName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -192,10 +350,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Extension Name"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textExtensionName"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="â€”" android:textColor="@color/text_primary"
-                            android:textSize="13sp" android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textExtensionName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -208,10 +371,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Birthday"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textBirthday"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="â€”" android:textColor="@color/text_primary"
-                            android:textSize="13sp" android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textBirthday"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -224,10 +392,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Gender"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textGender"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="â€”" android:textColor="@color/text_primary"
-                            android:textSize="13sp" android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textGender"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -240,11 +413,17 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Address"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textAddress"
-                            android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:text="â€”"
-                            android:textColor="@color/text_primary" android:textSize="13sp"
-                            android:textStyle="bold" android:gravity="end" />
+
+                        <TextView
+                            android:id="@+id/textAddress"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -281,11 +460,17 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Email"
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textProfileEmail"
-                            android:layout_width="0dp" android:layout_height="wrap_content"
-                            android:layout_weight="1" android:text="â€”"
-                            android:textColor="@color/text_primary" android:textSize="13sp"
-                            android:textStyle="bold" android:gravity="end" />
+
+                        <TextView
+                            android:id="@+id/textProfileEmail"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="end"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="1dp"
@@ -298,10 +483,15 @@
                         <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                             android:layout_weight="1" android:text="Contact No."
                             android:textColor="@color/text_secondary" android:textSize="13sp" />
-                        <TextView android:id="@+id/textProfileContact"
-                            android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="â€”" android:textColor="@color/text_primary"
-                            android:textSize="13sp" android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textProfileContact"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                     <!-- ID Number (conditionally visible) -->

@@ -74,7 +74,15 @@ class AppointmentRepositoryImpl(private val apiService: ApiService) : Appointmen
                 if (response.isSuccessful) {
                     Result.success(true)
                 } else {
-                    Result.failure(Exception("Failed to cancel appointment: ${response.message()}"))
+                    val errorMsg = try {
+                        val json = org.json.JSONObject(response.errorBody()?.string() ?: "{}")
+                        json.optString("error").ifEmpty {
+                            json.optString("message").ifEmpty { "Failed to cancel appointment: ${response.message()}" }
+                        }
+                    } catch (ex: Exception) {
+                        "Failed to cancel appointment: ${response.message()}"
+                    }
+                    Result.failure(Exception(errorMsg))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -89,7 +97,15 @@ class AppointmentRepositoryImpl(private val apiService: ApiService) : Appointmen
                 if (response.isSuccessful) {
                     Result.success(true)
                 } else {
-                    Result.failure(Exception("Failed to update appointment: ${response.message()}"))
+                    val errorMsg = try {
+                        val json = org.json.JSONObject(response.errorBody()?.string() ?: "{}")
+                        json.optString("error").ifEmpty {
+                            json.optString("message").ifEmpty { "Failed to update appointment: ${response.message()}" }
+                        }
+                    } catch (ex: Exception) {
+                        "Failed to update appointment: ${response.message()}"
+                    }
+                    Result.failure(Exception(errorMsg))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -138,7 +154,15 @@ class AppointmentRepositoryImpl(private val apiService: ApiService) : Appointmen
                         Result.failure(Exception(msg))
                     }
                 } else {
-                    Result.failure(Exception("Server error ${response.code()}: ${response.message()}"))
+                    val errorMsg = try {
+                        val json = org.json.JSONObject(response.errorBody()?.string() ?: "{}")
+                        json.optString("error").ifEmpty {
+                            json.optString("message").ifEmpty { "Server error ${response.code()}: ${response.message()}" }
+                        }
+                    } catch (ex: Exception) {
+                        "Server error ${response.code()}: ${response.message()}"
+                    }
+                    Result.failure(Exception(errorMsg))
                 }
             } catch (e: Exception) {
                 Result.failure(e)
@@ -154,7 +178,7 @@ class AppointmentRepositoryImpl(private val apiService: ApiService) : Appointmen
         userId: Int,
         documentTypeIds: List<Int>,
         studentIdNumber: String?
-    ): Result<Unit> {
+    ): Result<Int> {
         return withContext(Dispatchers.IO) {
             try {
                 val appointment = Appointment(
@@ -171,7 +195,10 @@ class AppointmentRepositoryImpl(private val apiService: ApiService) : Appointmen
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null && body["success"] == true) {
-                        Result.success(Unit)
+                        val id = (body["id"] as? Double)?.toInt()
+                            ?: (body["id"] as? Int)
+                            ?: -1
+                        Result.success(id)
                     } else {
                         Result.failure(Exception(body?.get("message") as? String ?: "Request failed"))
                     }
@@ -203,6 +230,28 @@ class AppointmentRepositoryImpl(private val apiService: ApiService) : Appointmen
         }
     }
 
+    override suspend fun uploadIdPhoto(appointmentId: Int, uri: Uri, context: Context): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                    ?: return@withContext Result.failure(Exception("Cannot open image"))
+                val bytes = inputStream.readBytes()
+                inputStream.close()
+                val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+                val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+                val part = MultipartBody.Part.createFormData("id_photo", "id_photo.jpg", requestBody)
+                val response = apiService.uploadIdPhoto(appointmentId, part)
+                if (response.isSuccessful) {
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("Upload failed: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
     suspend fun uploadPaymentProof(appointmentId: Int, uri: Uri, context: Context): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
@@ -229,7 +278,6 @@ class AppointmentRepositoryImpl(private val apiService: ApiService) : Appointmen
         return withContext(Dispatchers.IO) {
             try {
                 val body = mapOf(
-                    "status" to "approved",
                     "payment_reference" to reference,
                     "payment_status" to "submitted"
                 )

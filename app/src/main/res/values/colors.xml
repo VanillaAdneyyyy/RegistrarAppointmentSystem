@@ -8,10 +8,10 @@
     <color name="primary_dark_green_light">#2563EB</color>
     <color name="primary_dark_green_dark">#1E40AF</color>
 
-    <!-- Secondary Accent: Amber (matches web pending #f59e0b) -->
-    <color name="secondary_dark_gold">#F59E0B</color>
-    <color name="secondary_dark_gold_light">#FCD34D</color>
-    <color name="secondary_dark_gold_dark">#D97706</color>
+    <!-- Secondary Accent: White -->
+    <color name="secondary_dark_gold">#FFFFFF</color>
+    <color name="secondary_dark_gold_light">#FFFFFF</color>
+    <color name="secondary_dark_gold_dark">#FFFFFF</color>
 
     <!-- Background Colors -->
     <color name="background_cream">#F1F5F9</color>
@@ -25,7 +25,7 @@
 
     <!-- Accent Colors -->
     <color name="accent_green_light">#EFF6FF</color>
-    <color name="accent_gold_light">#FEF3C7</color>
+    <color name="accent_gold_light">#FFFFFF</color>
 
     <!-- Legacy compatibility -->
     <color name="primary_green">#1E3A8A</color>
@@ -53,5 +53,5 @@
 
     <!-- Divider and borders -->
     <color name="divider_light">#E2E8F0</color>
-    <color name="border_gold">#FCD34D</color>
+    <color name="border_gold">#FFFFFF</color>
 </resources>

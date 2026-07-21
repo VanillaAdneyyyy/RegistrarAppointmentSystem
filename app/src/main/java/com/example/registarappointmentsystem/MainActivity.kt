@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.registarappointmentsystem.ui.auth.LoginActivity
+import com.example.registarappointmentsystem.ui.dashboard.StudentDashboardActivity
+import com.example.registarappointmentsystem.ui.profile.ProfileActivity
+import com.example.registarappointmentsystem.utils.BackgroundSyncScheduler
 
 /**
  * Entry Activity that simply redirects to LoginActivity.
@@ -13,8 +16,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Navigate directly to the login flow for now.
-        startActivity(Intent(this, LoginActivity::class.java))
+        val authPrefs = getSharedPreferences("auth", MODE_PRIVATE)
+        val isLoggedIn = authPrefs.getInt("user_id", -1) > 0
+        val mustChangePassword = authPrefs.getBoolean("must_change_password", false)
+
+        if (isLoggedIn) {
+            BackgroundSyncScheduler.start(this)
+            if (mustChangePassword) {
+                startActivity(Intent(this, ProfileActivity::class.java).apply {
+                    putExtra("forcePasswordChange", true)
+                })
+            } else {
+                startActivity(Intent(this, StudentDashboardActivity::class.java))
+            }
+        } else {
+            BackgroundSyncScheduler.stop(this)
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
         finish()
     }
 }

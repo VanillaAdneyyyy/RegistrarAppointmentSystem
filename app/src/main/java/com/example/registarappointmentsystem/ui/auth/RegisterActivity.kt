@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.animation.OvershootInterpolator
+import android.text.InputFilter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -27,6 +28,13 @@ import kotlinx.coroutines.launch
  */
 class RegisterActivity : AppCompatActivity() {
 
+    companion object {
+        private const val NAME_MIN_LENGTH = 3
+        private const val NAME_MAX_LENGTH = 50
+        private const val EXTENSION_MIN_LENGTH = 3
+        private const val EXTENSION_MAX_LENGTH = 5
+    }
+
     private lateinit var binding: ActivityRegisterBinding
     private val selectedRole: Role = Role.GUEST
     private lateinit var authRepository: AuthRepositoryImpl
@@ -40,9 +48,9 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
         authRepository = AuthRepositoryImpl(RetrofitClient.apiService)
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             val sysBarBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
-            v.setPadding(0, 0, 0, maxOf(imeBottom, sysBarBottom))
+            // Keep only navigation-bar inset; keyboard height is handled by adjustResize.
+            v.setPadding(0, 0, 0, sysBarBottom)
             insets
         }
         setupUi()
@@ -50,6 +58,11 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun setupUi() {
+        binding.editTextFirstName.filters = arrayOf(InputFilter.LengthFilter(NAME_MAX_LENGTH))
+        binding.editTextMiddleName.filters = arrayOf(InputFilter.LengthFilter(NAME_MAX_LENGTH))
+        binding.editTextLastName.filters = arrayOf(InputFilter.LengthFilter(NAME_MAX_LENGTH))
+        binding.editTextExtensionName.filters = arrayOf(InputFilter.LengthFilter(EXTENSION_MAX_LENGTH))
+
         // Role segment always hidden — only GUEST registration
         binding.layoutSegment.visibility = View.GONE
 
@@ -74,16 +87,31 @@ class RegisterActivity : AppCompatActivity() {
             animateTextClick(it)
             finish()
         }
+
+        // Password strength indicator
+        binding.editTextPassword.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) { updatePasswordStrength(s?.toString() ?: "") }
+        })
     }
 
     // ===== Name validation =====
-    private fun validateName(name: String, fieldName: String): Pair<Boolean, String> {
+    private fun validateName(
+        name: String,
+        fieldName: String,
+        required: Boolean,
+        minLength: Int,
+        maxLength: Int
+    ): Pair<Boolean, String> {
         if (name.isEmpty()) {
-            return if (fieldName == "First name" || fieldName == "Last name")
-                Pair(false, "$fieldName is required")
-            else
-                Pair(true, "")
+            return if (required) Pair(false, "$fieldName is required") else Pair(true, "")
         }
+
+        if (name.length < minLength || name.length > maxLength) {
+            return Pair(false, "$fieldName must be $minLength-$maxLength characters")
+        }
+
         val validNameRegex = Regex("^[a-zA-Z\\s\\.\\-]+$")
         if (!validNameRegex.matches(name))
             return Pair(false, "$fieldName can only contain letters, spaces, periods (.), and hyphens (-)")
@@ -100,27 +128,38 @@ class RegisterActivity : AppCompatActivity() {
         val password     = binding.editTextPassword.text.toString().trim()
         val confirmPw    = binding.editTextConfirmPassword.text.toString().trim()
 
+        // Clear all field errors
+        binding.textInputFirstName.error = null
+        binding.textInputMiddleName.error = null
+        binding.textInputLastName.error = null
+        binding.textInputExtensionName.error = null
+        binding.textInputEmail.error = null
+        binding.textInputPassword.error = null
+        binding.textInputConfirmPassword.error = null
+
         // Name validation
-        for ((value, label) in listOf(
-            firstName to "First name",
-            middleName to "Middle name",
-            lastName to "Last name",
-            extensionN to "Extension name"
+        for ((value, label, inputLayout) in listOf(
+            Triple(firstName, Triple("First name", true, NAME_MAX_LENGTH), binding.textInputFirstName),
+            Triple(middleName, Triple("Middle name", false, NAME_MAX_LENGTH), binding.textInputMiddleName),
+            Triple(lastName, Triple("Last name", true, NAME_MAX_LENGTH), binding.textInputLastName),
+            Triple(extensionN, Triple("Extension name", false, EXTENSION_MAX_LENGTH), binding.textInputExtensionName)
         )) {
-            val (ok, msg) = validateName(value, label)
-            if (!ok) { showError(msg); return }
+            val (fieldName, required, maxLength) = label
+            val minLength = if (fieldName == "Extension name") EXTENSION_MIN_LENGTH else NAME_MIN_LENGTH
+            val (ok, msg) = validateName(value, fieldName, required, minLength, maxLength)
+            if (!ok) { inputLayout.error = msg; showError(msg); return }
         }
 
         // Field validation
         when {
-            firstName.isEmpty()  -> { showError("First name is required"); return }
-            lastName.isEmpty()   -> { showError("Last name is required"); return }
-            email.isEmpty()      -> { showError("Email is required"); return }
+            email.isEmpty()      -> { binding.textInputEmail.error = "Email is required"; showError("Email is required"); return }
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-                showError("Invalid email format"); return }
-            password.isEmpty()   -> { showError("Password is required"); return }
-            password.length < 6  -> { showError("Password must be at least 6 characters"); return }
-            password != confirmPw -> { showError("Passwords do not match"); return }
+                binding.textInputEmail.error = "Invalid email format"; showError("Invalid email format"); return }
+            password.isEmpty()   -> { binding.textInputPassword.error = "Password is required"; showError("Password is required"); return }
+            password.length < 8  -> { binding.textInputPassword.error = "Password must be at least 8 characters"; showError("Password must be at least 8 characters"); return }
+            !Regex("^(?=.*[A-Za-z])(?=.*\\d)\\S+$").matches(password) -> {
+                binding.textInputPassword.error = "Password must include letters and numbers (special characters allowed)"; showError("Password must include letters and numbers (special characters allowed)"); return }
+            password != confirmPw -> { binding.textInputConfirmPassword.error = "Passwords do not match"; showError("Passwords do not match"); return }
         }
 
         binding.textError.visibility = View.GONE
@@ -136,17 +175,25 @@ class RegisterActivity : AppCompatActivity() {
                 showLoading(false)
                 if (response.isSuccessful) {
                     val body = response.body()
-                    if (body?.get("success") == true) {
+                    val success = body?.get("success") == true
+                    val message = body?.get("message") as? String ?: ""
+                    // Treat "already sent" as success — PIN is already in their inbox
+                    val alreadySent = message.contains("already been sent", ignoreCase = true) ||
+                                      message.contains("already sent", ignoreCase = true)
+                    if (success || alreadySent) {
                         isPinSent = true
-                        // Show PIN section, lock form fields
                         binding.layoutPinSection.visibility = View.VISIBLE
-                        binding.textEmailStatus.text = "✉ PIN sent to $email — check your inbox!"
+                        binding.textEmailStatus.text = if (alreadySent)
+                            "✉ A PIN was already sent to $email — check your inbox!"
+                        else
+                            "✉ PIN sent to $email — check your inbox!"
                         binding.textEmailStatus.visibility = View.VISIBLE
                         binding.buttonSignUp.text = "Resend PIN"
                         lockFormFields(true)
-                        showToast("PIN sent to your email!")
+
+                        showToast(if (alreadySent) "PIN already sent — check your inbox" else "PIN sent to your email!")
                     } else {
-                        showError(body?.get("message") as? String ?: "Failed to send PIN")
+                        showError(message.ifEmpty { "Failed to send PIN" })
                     }
                 } else {
                     showError("Failed to send PIN. Please try again.")
@@ -245,6 +292,23 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     // ===== Helpers =====
+    private fun updatePasswordStrength(password: String) {
+        if (password.isEmpty()) {
+            binding.layoutPasswordStrength.visibility = View.GONE
+            return
+        }
+        binding.layoutPasswordStrength.visibility = View.VISIBLE
+        val (progress, color, label) = when {
+            password.length < 8 -> Triple(25, 0xFFEF4444.toInt(), "Too short")
+            Regex("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$").matches(password) -> Triple(100, 0xFF10B981.toInt(), "Strong")
+            else -> Triple(55, 0xFFF59E0B.toInt(), "Fair")
+        }
+        binding.progressPasswordStrength.progress = progress
+        binding.progressPasswordStrength.progressTintList = android.content.res.ColorStateList.valueOf(color)
+        binding.textPasswordStrength.text = label
+        binding.textPasswordStrength.setTextColor(color)
+    }
+
     private fun lockFormFields(locked: Boolean) {
         binding.editTextFirstName.isEnabled = !locked
         binding.editTextMiddleName.isEnabled = !locked

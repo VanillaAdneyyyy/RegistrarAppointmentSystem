@@ -28,6 +28,7 @@ data class User(
     val gender: String? = null,
     val birthday: String? = null,
     val address: String? = null,
+    val must_change_password: Boolean? = false,
     val created_at: String? = null,
     val updated_at: String? = null
 ) {

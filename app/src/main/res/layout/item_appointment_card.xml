@@ -45,7 +45,7 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
 
-            <!-- ● dot + status in one rounded pill -->
+            <!-- Icon + status in one rounded pill -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,12 +59,14 @@
                 android:id="@+id/statusBadgeLayout">
 
                 <TextView
-                    android:id="@+id/textStatusDot"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/step_circle_done"
-                    android:backgroundTint="@color/white"
-                    android:layout_marginEnd="5dp" />
+                    android:id="@+id/textStatusIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:layout_marginEnd="6dp" />
 
                 <TextView
                     android:id="@+id/textStatus"
@@ -255,6 +257,23 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <!-- Prominent amount box — shown for payment-required approved appointments -->
+        <TextView
+            android:id="@+id/textPaymentAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:background="#DBEAFE"
+            android:textColor="#1E3A8A"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="6dp"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/textNote"
             android:layout_width="match_parent"
@@ -265,6 +284,20 @@
             android:textSize="12sp"
             android:padding="10dp"
             android:drawablePadding="6dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textPaymentTimer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:background="@color/accent_gold_light"
+            android:textColor="@color/secondary_dark_gold_dark"
+            android:textSize="12sp"
+            android:padding="10dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="4dp"

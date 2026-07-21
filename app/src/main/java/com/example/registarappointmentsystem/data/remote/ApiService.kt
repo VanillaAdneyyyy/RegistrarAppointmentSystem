@@ -5,9 +5,11 @@ import com.example.registarappointmentsystem.data.model.DocumentType
 import com.example.registarappointmentsystem.data.model.TimeSlotsResponse
 import com.example.registarappointmentsystem.data.model.User
 import com.example.registarappointmentsystem.data.remote.request.LoginRequest
+import com.example.registarappointmentsystem.data.remote.request.RequestGuestDeletionPinRequest
 import com.example.registarappointmentsystem.data.remote.request.RegisterRequest
 import com.example.registarappointmentsystem.data.remote.request.RequestPinRequest
 import com.example.registarappointmentsystem.data.remote.request.ResetPasswordRequest
+import com.example.registarappointmentsystem.data.remote.request.VerifyGuestDeletionPinRequest
 import com.example.registarappointmentsystem.data.remote.request.VerifyPinRequest
 import com.example.registarappointmentsystem.data.remote.response.LoginResponse
 import com.example.registarappointmentsystem.data.remote.response.RegisterResponse
@@ -17,7 +19,9 @@ import com.example.registarappointmentsystem.data.remote.response.VerifyPinRespo
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -27,6 +31,9 @@ import retrofit2.http.Query
 
 
 interface ApiService {
+
+    @GET("api/settings")
+    suspend fun getSettings(): Response<Map<String, Any>>
 
     @POST("api/auth/login")
     suspend fun login(
@@ -108,5 +115,56 @@ interface ApiService {
     suspend fun uploadPaymentProof(
         @Path("id") id: Int,
         @Part screenshot: MultipartBody.Part
+    ): Response<Map<String, Any>>
+
+    @Multipart
+    @POST("api/appointments/{id}/upload-id-photo")
+    suspend fun uploadIdPhoto(
+        @Path("id") id: Int,
+        @Part photo: MultipartBody.Part
+    ): Response<Map<String, Any>>
+
+    @GET("api/auth/profile/{id}")
+    suspend fun getProfileById(@Path("id") id: Int): Response<Map<String, Any>>
+
+    @PUT("api/auth/profile/{id}")
+    suspend fun updateProfileById(
+        @Path("id") id: Int,
+        @Body body: Map<String, String?>
+    ): Response<Map<String, Any>>
+
+    @POST("api/auth/change-password")
+    suspend fun changePassword(
+        @Body body: Map<String, String>
+    ): Response<Map<String, Any>>
+
+    @GET("api/auth/profile/{id}/notification-preferences")
+    suspend fun getNotificationPreferences(
+        @Path("id") id: Int
+    ): Response<Map<String, Any>>
+
+    @PUT("api/auth/profile/{id}/notification-preferences")
+    suspend fun updateNotificationPreferences(
+        @Path("id") id: Int,
+        @Body body: Map<String, Boolean>
+    ): Response<Map<String, Any>>
+
+    @DELETE("api/notifications/user/{userId}/clear-all")
+    suspend fun clearNotifications(@Path("userId") userId: Int): Response<Unit>
+
+    @POST("api/auth/account-deletion/request-pin")
+    suspend fun requestGuestDeletionPin(
+        @Body body: RequestGuestDeletionPinRequest
+    ): Response<Map<String, Any>>
+
+    @POST("api/auth/account-deletion/verify-pin")
+    suspend fun verifyGuestDeletionPin(
+        @Body body: VerifyGuestDeletionPinRequest
+    ): Response<Map<String, Any>>
+
+    @HTTP(method = "DELETE", path = "api/auth/account-deletion/{id}", hasBody = true)
+    suspend fun deleteGuestAccount(
+        @Path("id") id: Int,
+        @Body body: Map<String, String>
     ): Response<Map<String, Any>>
 }

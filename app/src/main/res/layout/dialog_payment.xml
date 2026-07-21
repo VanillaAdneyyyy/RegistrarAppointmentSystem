@@ -194,6 +194,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvGcashDetails"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0917-123-4567 · Juan D. Registrar"
@@ -238,6 +239,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvBdoDetails"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="1234-5678-9012 · PHINMA UPang Registrar"
@@ -277,7 +279,9 @@
                     android:id="@+id/etRefNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
+                    android:inputType="number"
+                    android:digits="0123456789"
+                    android:maxLength="11"
                     android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 

@@ -31,7 +31,7 @@
             android:gravity="center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonNotification"
+            app:layout_constraintEnd_toStartOf="@id/buttonHelp"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -60,36 +60,53 @@
                 android:alpha="0.8" />
         </LinearLayout>
 
-        <!-- Notification bell -->
+        <!-- Help button -->
         <ImageButton
-            android:id="@+id/buttonNotification"
+            android:id="@+id/buttonHelp"
             android:layout_width="38dp"
             android:layout_height="38dp"
             android:background="@drawable/bg_close_btn"
-            android:src="@drawable/ic_notification"
+            android:src="@android:drawable/ic_menu_help"
             android:tint="@color/white"
-            android:contentDescription="@null"
-            android:layout_marginEnd="10dp"
+            android:contentDescription="Contact Registrar"
+            android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/imageProfile"
+            app:layout_constraintEnd_toStartOf="@id/notifBellContainer"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Profile avatar -->
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/imageProfile"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:contentDescription="Profile"
-            android:src="@android:drawable/ic_menu_myplaces"
-            android:background="@drawable/bg_close_btn"
-            android:padding="8dp"
-            app:tint="#BFDBFE"
-            app:strokeWidth="2dp"
-            app:strokeColor="#BFDBFE"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
+        <!-- Notification bell -->
+        <FrameLayout
+            android:id="@+id/notifBellContainer"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/buttonNotification"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_close_btn"
+                android:src="@drawable/ic_notification"
+                android:tint="@color/white"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/textNotifBadge"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="1dp"
+                android:gravity="center"
+                android:text=""
+                android:textColor="@color/white"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -172,7 +189,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textColor="@color/stat_amber"
+                    android:textColor="@android:color/holo_orange_dark"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
@@ -189,7 +206,7 @@
                     android:layout_width="24dp"
                     android:layout_height="3dp"
                     android:layout_marginTop="5dp"
-                    android:background="@color/stat_amber" />
+                    android:background="#FF5722" />
 
             </LinearLayout>
 
@@ -279,7 +296,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/statsRow"
+        app:layout_constraintTop_toBottomOf="@id/bannerProfileIncomplete"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -294,7 +311,7 @@
         android:visibility="gone"
         android:padding="32dp"
         android:background="@color/background_cream"
-        app:layout_constraintTop_toBottomOf="@id/statsRow"
+        app:layout_constraintTop_toBottomOf="@id/bannerProfileIncomplete"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -462,18 +479,65 @@
 
     </LinearLayout>
 
-    <!-- RecyclerView for appointments -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerAppointments"
+    <!-- Profile Incomplete Banner -->
+    <LinearLayout
+        android:id="@+id/bannerProfileIncomplete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#FFF3CD"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/statsRow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="⚠️  Your profile is incomplete. Tap to complete it so you can request documents."
+            android:textColor="#92400E"
+            android:textSize="12.5sp"
+            android:lineSpacingExtra="2dp" />
+
+        <TextView
+            android:id="@+id/bannerProfileCompleteBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Update →"
+            android:textColor="#B45309"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@null"
+            android:padding="4dp" />
+
+    </LinearLayout>
+
+    <!-- SwipeRefreshLayout wrapping RecyclerView for pull-to-refresh -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="14dp"
-        android:clipToPadding="false"
-        android:background="@color/background_cream"
-        app:layout_constraintTop_toBottomOf="@id/statsRow"
+        app:layout_constraintTop_toBottomOf="@id/bannerProfileIncomplete"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerAppointments"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="14dp"
+            android:clipToPadding="false"
+            android:background="@color/background_cream" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

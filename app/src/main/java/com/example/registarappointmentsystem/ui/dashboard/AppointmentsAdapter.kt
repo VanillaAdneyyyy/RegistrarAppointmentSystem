@@ -38,9 +38,12 @@ class AppointmentsAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val textRefId: TextView = itemView.findViewById(R.id.textRefId)
         private val textStatus: TextView = itemView.findViewById(R.id.textStatus)
+        private val textStatusIcon: TextView = itemView.findViewById(R.id.textStatusIcon)
         private val textPurpose: TextView = itemView.findViewById(R.id.textPurpose)
         private val textDate: TextView = itemView.findViewById(R.id.textDate)
         private val textNote: TextView = itemView.findViewById(R.id.textNote)
+        private val textPaymentAmount: TextView = itemView.findViewById(R.id.textPaymentAmount)
+        private val textPaymentTimer: TextView = itemView.findViewById(R.id.textPaymentTimer)
         private val buttonCancel: Button = itemView.findViewById(R.id.buttonCancel)
         private val buttonSelectDate: Button = itemView.findViewById(R.id.buttonSelectDate)
         private val buttonConfirm: Button = itemView.findViewById(R.id.buttonConfirm)
@@ -71,7 +74,7 @@ class AppointmentsAdapter(
         private val colorInactive = Color.parseColor("#BDBDBD")
 
         fun bind(appointment: Appointment) {
-            textRefId.text = "Ref #${appointment.id}"
+            textRefId.text = appointment.reference_number ?: "—"
 
             // Set default click listeners and button text at the top.
             // Branch-specific overrides (e.g. "Submit Payment") will replace these below.
@@ -102,7 +105,13 @@ class AppointmentsAdapter(
             val statusLower = appointment.status?.lowercase()?.trim()
             val displayDate = when {
                 statusLower == "incomplete" || statusLower == "rejected" ||
-                statusLower == "no_show" || statusLower == "cancelled" -> null
+                statusLower == "no_show" -> null
+                statusLower == "cancelled" && !appointment.updated_at.isNullOrEmpty() ->
+                    "✕ Cancelled on ${formatDateTime(appointment.updated_at!!)}"
+                statusLower == "cancelled" -> "✕ Cancelled"
+                statusLower == "completed" && !appointment.updated_at.isNullOrEmpty() ->
+                    "✅ Completed on ${formatDateTime(appointment.updated_at!!)}"
+                statusLower == "completed" -> "✅ Completed"
                 statusLower == "pending" ->
                     "⏳ Waiting for Registrar's Approval"
                 !appointment.student_pickup_date.isNullOrEmpty() ->
@@ -131,6 +140,12 @@ class AppointmentsAdapter(
                 textNote.visibility = View.VISIBLE
                 textNote.text = "📋 $note"
             }
+            // Reset payment timer box
+            textPaymentTimer.visibility = View.GONE
+            textPaymentTimer.setBackgroundColor(Color.TRANSPARENT)
+            textPaymentTimer.setPadding(0, 0, 0, 0)
+            // Reset payment amount box
+            textPaymentAmount.visibility = View.GONE
 
             val hasSub = !appointment.student_pickup_date.isNullOrEmpty()
 
@@ -139,7 +154,7 @@ class AppointmentsAdapter(
                 "approved" -> {
                     textStatus.text = "APPROVED"
                     val color = ContextCompat.getColor(itemView.context, R.color.status_approved)
-                    applyStatusColor(color)
+                    applyStatusColor(color, "🔎")
                     updateStepTracker(2)
                     buttonConfirm.visibility = View.GONE
                     buttonPrintStub.visibility = View.GONE
@@ -148,26 +163,44 @@ class AppointmentsAdapter(
                     val payAmt  = appointment.paymentAmount?.toDoubleOrNull()
                     val paySt   = appointment.paymentStatus
 
-                    if (payAmt != null && paySt != "verified") {
-                        // Payment required — show payment info instead of date picker button
+                    if (payAmt != null && payAmt > 0 && paySt != "verified") {
+                        // Payment required — show amount, instructions, and timer in separate boxes
                         buttonSelectDate.visibility = View.GONE
                         val amtStr = String.format("\u20b1%.2f", payAmt)
-                        val payInfo = when (paySt) {
+
+                        // Box 1: prominent amount display (blue)
+                        textPaymentAmount.visibility = View.VISIBLE
+                        textPaymentAmount.text = "\uD83D\uDCB3 Amount Due: $amtStr"
+
+                        // Box 2: instructions / status
+                        val basePayInfo = when (paySt) {
                             "submitted" ->
-                                "🕐 Payment reference submitted!\nAmount: $amtStr\nRef: ${appointment.paymentReference}\nWaiting for registrar to verify."
+                                "\uD83D\uDD50 Payment reference submitted!\nRef: ${appointment.paymentReference}\n\nWaiting for registrar to verify."
                             "rejected" ->
-                                "⚠️ Payment reference rejected.\nAmount: $amtStr\n\nPlease tap \"Submit Payment\" to re-submit a correct reference."
+                                "\u26A0\uFE0F Payment reference rejected. Please tap \"Submit Payment\" to re-submit a correct reference."
                             else ->
-                                "💳 Payment Required: $amtStr\n\nPay via GCash or bank transfer, then tap \"Submit Payment\" to send your reference number."
+                                "Pay via GCash or bank transfer, then tap \"Submit Payment\" to send your reference number."
                         }
                         textNote.visibility = View.VISIBLE
                         textNote.setBackgroundColor(if (paySt == "submitted") Color.parseColor("#E0F2FE") else Color.parseColor("#FEF9C3"))
                         textNote.setTextColor(if (paySt == "submitted") Color.parseColor("#0C4A6E") else Color.parseColor("#854D0E"))
                         textNote.setPadding(20, 12, 20, 12)
-                        textNote.text = payInfo
+                        textNote.text = basePayInfo
+
+                        // Box 3: deadline timer (orange) — only when payment not yet submitted
+                        if (paySt != "submitted" && paySt != "rejected") {
+                            val deadlineText = appointment.getDeadlineRemainingText()
+                            if (deadlineText != null) {
+                                textPaymentTimer.visibility = View.VISIBLE
+                                textPaymentTimer.setBackgroundColor(Color.parseColor("#FFF7ED"))
+                                textPaymentTimer.setTextColor(Color.parseColor("#9A3412"))
+                                textPaymentTimer.setPadding(20, 12, 20, 12)
+                                textPaymentTimer.text = "\u23F3 $deadlineText"
+                            }
+                        }
                         // Re-purpose buttonCancel into a "Submit Payment" button only when not yet submitted
                         if (paySt != "submitted") {
-                            buttonCancel.text = "💳 Submit Payment"
+                            buttonCancel.text = "\uD83D\uDCB3 Submit Payment"
                             buttonCancel.backgroundTintList =
                                 ContextCompat.getColorStateList(itemView.context, R.color.status_approved)
                             buttonCancel.setOnClickListener { onSelectDateTimeClick(appointment) }
@@ -176,11 +209,20 @@ class AppointmentsAdapter(
                         }
                     } else {
                         // No payment required, or payment verified
-                        buttonSelectDate.visibility = View.VISIBLE
-                        buttonCancel.visibility = View.VISIBLE
+                        // Gate schedule button behind ready_date being set by registrar
+                        val hasReadyDate = !appointment.ready_date.isNullOrEmpty()
+                        buttonSelectDate.visibility = if (hasReadyDate) View.VISIBLE else View.GONE
+                        val hideCancelWhileWaitingForDate = paySt == "verified" && !hasReadyDate
+                        buttonCancel.visibility = if (hideCancelWhileWaitingForDate) View.GONE else View.VISIBLE
                         buttonCancel.text = "Cancel Request"
                         val graceText = "⏰ Please arrive 5 minutes early. Students arriving more than 5 minutes late may be marked as No-Show."
-                        if (paySt == "verified") {
+                        if (!hasReadyDate) {
+                            textNote.visibility = View.VISIBLE
+                            textNote.setBackgroundColor(Color.parseColor("#F1F5F9"))
+                            textNote.setTextColor(Color.parseColor("#475569"))
+                            textNote.setPadding(20, 12, 20, 12)
+                            textNote.text = "⏳ Waiting for the registrar to set an availability date. You'll be able to schedule your pickup once it's been set."
+                        } else if (paySt == "verified") {
                             textNote.visibility = View.VISIBLE
                             textNote.setBackgroundColor(Color.parseColor("#F0FDF4"))
                             textNote.setTextColor(Color.parseColor("#166534"))
@@ -198,7 +240,7 @@ class AppointmentsAdapter(
                 "ready" -> {
                     textStatus.text = "READY FOR PICKUP"
                     val color = ContextCompat.getColor(itemView.context, R.color.status_ready)
-                    applyStatusColor(color)
+                    applyStatusColor(color, "📦")
                     updateStepTracker(3)
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
@@ -217,7 +259,7 @@ class AppointmentsAdapter(
                 "pending" -> {
                     textStatus.text = "PENDING"
                     val color = ContextCompat.getColor(itemView.context, R.color.status_pending)
-                    applyStatusColor(color)
+                    applyStatusColor(color, "⏳")
                     updateStepTracker(1)
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
@@ -227,7 +269,7 @@ class AppointmentsAdapter(
                 "completed" -> {
                     textStatus.text = "COMPLETED"
                     val color = ContextCompat.getColor(itemView.context, R.color.status_completed)
-                    applyStatusColor(color)
+                    applyStatusColor(color, "✅")
                     updateStepTracker(5) // 5 > 4 means all steps done
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
@@ -237,7 +279,7 @@ class AppointmentsAdapter(
                 "incomplete" -> {
                     textStatus.text = "INCOMPLETE"
                     val color = Color.parseColor("#B45309")
-                    applyStatusColor(color)
+                    applyStatusColor(color, "⚠️")
                     updateStepTracker(0)
                     textDate.visibility = View.GONE
                     buttonSelectDate.visibility = View.GONE
@@ -262,7 +304,7 @@ class AppointmentsAdapter(
                 "rejected" -> {
                     textStatus.text = "REJECTED"
                     val color = ContextCompat.getColor(itemView.context, R.color.status_rejected)
-                    applyStatusColor(color)
+                    applyStatusColor(color, "❌")
                     updateStepTracker(0) // 0 = all inactive (rejected)
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
@@ -271,18 +313,30 @@ class AppointmentsAdapter(
                 }
                 "no_show" -> {
                     textStatus.text = "NO-SHOW"
-                    val color = ContextCompat.getColor(itemView.context, R.color.status_rejected)
-                    applyStatusColor(color)
+                    val color = Color.parseColor("#B45309")
+                    applyStatusColor(color, "🚫")
                     updateStepTracker(0)
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
                     buttonPrintStub.visibility = View.GONE
                     buttonCancel.visibility = View.GONE
+                    textNote.visibility = View.VISIBLE
+                    textNote.setBackgroundColor(Color.parseColor("#FFF7ED"))
+                    textNote.setTextColor(Color.parseColor("#9A3412"))
+                    textNote.setPadding(20, 12, 20, 12)
+                    val noteFromRegistrar = appointment.admin_comment
+                        ?.replace(Regex("^No-show:\\s*", RegexOption.IGNORE_CASE), "")?.trim()
+                        ?.takeIf { it.isNotEmpty() }
+                    textNote.text = buildString {
+                        append("🏫 Missed pickup detected.\n")
+                        if (!noteFromRegistrar.isNullOrEmpty()) append("Note: $noteFromRegistrar\n")
+                        append("\nSystem will auto-transition this request to FOR CLAIMING and start the 7-day auto-cancel countdown.")
+                    }
                 }
                 "cancelled" -> {
                     textStatus.text = "CANCELLED"
                     val color = Color.parseColor("#757575")
-                    applyStatusColor(color)
+                    applyStatusColor(color, "🛑")
                     updateStepTracker(0)
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
@@ -302,7 +356,7 @@ class AppointmentsAdapter(
                 "for_claiming" -> {
                     textStatus.text = "FOR CLAIMING"
                     val color = Color.parseColor("#E65100")
-                    applyStatusColor(color)
+                    applyStatusColor(color, "🏫")
                     updateStepTracker(0)
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
@@ -312,13 +366,21 @@ class AppointmentsAdapter(
                     textNote.setBackgroundColor(Color.parseColor("#FFF3E0"))
                     textNote.setTextColor(Color.parseColor("#BF360C"))
                     textNote.setPadding(20, 12, 20, 12)
-                    textNote.text = "\uD83C\uDFEB Your documents are ready at the Registrar's Office.\n\nPlease visit during office hours (Mon–Fri, 8AM–5PM) and bring a valid ID to claim your documents."
+                    val claimDeadlineText = appointment.getClaimingDeadlineRemainingText()
+                    textNote.text = buildString {
+                        append("🏫 Your documents are ready at the Registrar's Office.\n\n")
+                        if (claimDeadlineText != null) {
+                            append(claimDeadlineText)
+                            append("\n\n")
+                        }
+                        append("Please visit during office hours (Mon\u2013Fri, 8AM\u20135PM) and bring a valid ID.")
+                    }
                 }
                 else -> {
                     textStatus.text = if (appointment.status.isNullOrEmpty()) "PENDING"
                                       else appointment.status.uppercase()
                     val color = ContextCompat.getColor(itemView.context, R.color.status_pending)
-                    applyStatusColor(color)
+                    applyStatusColor(color, "📌")
                     updateStepTracker(1)
                     buttonSelectDate.visibility = View.GONE
                     buttonConfirm.visibility = View.GONE
@@ -331,11 +393,25 @@ class AppointmentsAdapter(
             // Branch-specific overrides (Submit Payment) were applied above.
         }
 
-        /** Apply status color to the strip, badge background, and status text. */
-        private fun applyStatusColor(color: Int) {
+        /** Apply status color to the strip and draw a rounded badge with a status-specific icon. */
+        private fun applyStatusColor(color: Int, icon: String) {
             viewStatusStrip.setBackgroundColor(color)
-            statusBadgeLayout.setBackgroundColor(color)
-            textStatus.setTextColor(Color.WHITE)
+            val density = itemView.context.resources.displayMetrics.density
+            val cornerRadius = 999f * density
+            statusBadgeLayout.background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                this.cornerRadius = cornerRadius
+                setColor(color)
+            }
+            val textColor = if (isLightColor(color)) Color.parseColor("#1E293B") else Color.WHITE
+            textStatusIcon.text = icon
+            textStatusIcon.setTextColor(textColor)
+            textStatus.setTextColor(textColor)
+        }
+
+        private fun isLightColor(color: Int): Boolean {
+            val luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255.0
+            return luminance >= 0.72
         }
 
         /**
@@ -430,6 +506,15 @@ class AppointmentsAdapter(
         } catch (e: Exception) {
             raw
         }
+    }
+
+    private fun formatDateTime(raw: String): String {
+        return try {
+            val date = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+                .apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
+                .parse(raw.substring(0, 19)) ?: return raw
+            SimpleDateFormat("MMM d, yyyy h:mm a", Locale.US).format(date)
+        } catch (e: Exception) { raw }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<Appointment>() {

@@ -26,8 +26,8 @@ class RequestCredentialsViewModel(
     private val _formState = MutableLiveData(RequestCredentialsFormState())
     val formState: LiveData<RequestCredentialsFormState> = _formState
 
-    private val _submitResult = MutableLiveData(UiResult<Unit>())
-    val submitResult: LiveData<UiResult<Unit>> = _submitResult
+    private val _submitResult = MutableLiveData(UiResult<Int>())
+    val submitResult: LiveData<UiResult<Int>> = _submitResult
 
     fun onSubmitClicked(
         username: String,
@@ -66,7 +66,7 @@ class RequestCredentialsViewModel(
                 studentIdNumber = studentIdNumber
             )
             _submitResult.value = if (result.isSuccess) {
-                UiResult(data = Unit)
+                UiResult(data = result.getOrNull() ?: -1)
             } else {
                 UiResult(errorMessage = result.exceptionOrNull()?.message ?: "Request failed")
             }

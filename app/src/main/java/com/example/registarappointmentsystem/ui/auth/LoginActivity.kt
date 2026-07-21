@@ -1,12 +1,17 @@
 package com.example.registarappointmentsystem.ui.auth
 
+import android.Manifest
 import android.animation.ObjectAnimator
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Build
 import android.view.View
 import android.view.animation.OvershootInterpolator
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
@@ -15,6 +20,9 @@ import com.example.registarappointmentsystem.ui.dashboard.StudentDashboardActivi
 import com.example.registarappointmentsystem.viewmodel.AuthViewModel
 import com.example.registarappointmentsystem.viewmodel.AuthViewModelFactory
 import com.google.android.material.snackbar.Snackbar
+import com.example.registarappointmentsystem.utils.SessionManager
+import com.example.registarappointmentsystem.utils.NotificationHelper
+import com.example.registarappointmentsystem.utils.BackgroundSyncScheduler
 
 /**
  * Enhanced Login screen UI with PostgreSQL backend integration.
@@ -28,6 +36,16 @@ import com.google.android.material.snackbar.Snackbar
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var sessionManager: SessionManager
+    private lateinit var notificationHelper: NotificationHelper
+    
+    // Permission request launcher for POST_NOTIFICATIONS (Android 13+)
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        // Permission result will be handled automatically by NotificationManagerCompat
+        // which catches SecurityException if permission not granted
+    }
 
     private val viewModel: AuthViewModel by viewModels {
         AuthViewModelFactory()
@@ -35,6 +53,20 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        sessionManager = SessionManager(this)
+        notificationHelper = NotificationHelper(this)
+
+        // Ensure Android 13+ can actually show push notifications.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!hasPermission) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -84,16 +116,20 @@ class LoginActivity : AppCompatActivity() {
             viewModel.onLoginClicked(identifier, password)
         }
 
-        // Create account navigation
+        // Create account navigation with animation
         binding.textCreateAccount.setOnClickListener {
             animateTextClick(it)
-            startActivity(Intent(this, RegisterActivity::class.java))
+            binding.root.postDelayed({
+                startActivity(Intent(this, RegisterActivity::class.java))
+            }, 150)
         }
 
-        // Forgot password
+        // Forgot password with animation
         binding.textForgotPassword.setOnClickListener {
             animateTextClick(it)
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            binding.root.postDelayed({
+                startActivity(Intent(this, ForgotPasswordActivity::class.java))
+            }, 150)
         }
     }
 
@@ -114,6 +150,9 @@ class LoginActivity : AppCompatActivity() {
                 val user = result.data
                 android.util.Log.d("LoginActivity", "Login successful for user: ${user.email}")
                 Snackbar.make(binding.root, "Welcome ${user.getFullName()}!", Snackbar.LENGTH_SHORT).show()
+                
+                // Initialize session timeout on successful login
+                sessionManager.updateLastActivityTime()
                 
                 // Save user info to SharedPreferences
                 val sharedPrefs = getSharedPreferences("auth", MODE_PRIVATE)
@@ -136,8 +175,23 @@ class LoginActivity : AppCompatActivity() {
                     putString("user_first_name", firstName)
                     putString("user_full_name", fullName)
                     putString("user_role", user.role ?: "guest")
+                    putBoolean("must_change_password", user.must_change_password == true)
+                    // Save profile fields so dashboard can show incomplete banner
+                    putString("user_contact_number", user.contact_number ?: "")
+                    putString("user_gender", user.gender ?: "")
+                    putString("user_birthday", user.birthday ?: "")
+                    putString("user_address", user.address ?: "")
                     apply()
                 }
+
+                BackgroundSyncScheduler.start(this)
+
+                // Determine if profile is incomplete
+                val mustChangePassword = user.must_change_password == true
+                val isProfileIncomplete = user.contact_number.isNullOrBlank() ||
+                    user.gender.isNullOrBlank() ||
+                    user.birthday.isNullOrBlank() ||
+                    user.address.isNullOrBlank()
 
                 // Persist or clear remembered credentials
                 val identifier = binding.editTextEmail.text.toString().trim()
@@ -153,7 +207,19 @@ class LoginActivity : AppCompatActivity() {
                 
                 // Navigate with animation
                 binding.root.postDelayed({
-                    startActivity(Intent(this, StudentDashboardActivity::class.java))
+                    if (mustChangePassword) {
+                        val intent = Intent(this, com.example.registarappointmentsystem.ui.profile.ProfileActivity::class.java).apply {
+                            putExtra("forcePasswordChange", true)
+                        }
+                        startActivity(intent)
+                    } else if (isProfileIncomplete) {
+                        val intent = Intent(this, com.example.registarappointmentsystem.ui.profile.ProfileActivity::class.java).apply {
+                            putExtra("isProfileIncomplete", true)
+                        }
+                        startActivity(intent)
+                    } else {
+                        startActivity(Intent(this, StudentDashboardActivity::class.java))
+                    }
                     finish()
                 }, 500)
             }
@@ -179,7 +245,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun animateEntry() {
-        // Staggered entry animations
+        // Staggered entry animations with smooth curves
         val views = listOf(
             binding.viewAvatarCircle,
             binding.textTitle,
@@ -188,28 +254,28 @@ class LoginActivity : AppCompatActivity() {
         
         views.forEachIndexed { index, view ->
             view.alpha = 0f
-            view.translationY = 50f
+            view.translationY = 40f
             
             view.animate()
                 .alpha(1f)
                 .translationY(0f)
-                .setDuration(500)
-                .setStartDelay(index * 100L)
-                .setInterpolator(OvershootInterpolator())
+                .setDuration(600)
+                .setStartDelay(index * 120L)
+                .setInterpolator(OvershootInterpolator(0.8f))
                 .start()
         }
     }
 
     private fun animateButtonPress(view: View) {
         view.animate()
-            .scaleX(0.95f)
-            .scaleY(0.95f)
-            .setDuration(100)
+            .scaleX(0.96f)
+            .scaleY(0.96f)
+            .setDuration(120)
             .withEndAction {
                 view.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(100)
+                    .setDuration(120)
                     .start()
             }
             .start()
@@ -217,13 +283,11 @@ class LoginActivity : AppCompatActivity() {
 
     private fun animateTextClick(view: View) {
         view.animate()
-            .scaleX(0.9f)
-            .scaleY(0.9f)
+            .alpha(0.7f)
             .setDuration(100)
             .withEndAction {
                 view.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
+                    .alpha(1f)
                     .setDuration(100)
                     .start()
             }

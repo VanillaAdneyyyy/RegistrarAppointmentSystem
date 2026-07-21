@@ -23,6 +23,10 @@
         <!-- Text colors -->
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+
+        <!-- Keep checkbox/radio/switch checked state readable after white secondary palette update -->
+        <item name="colorControlActivated">@color/status_ready</item>
+        <item name="android:colorControlActivated">@color/status_ready</item>
         
         <!-- Button styles -->
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
